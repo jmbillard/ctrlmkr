@@ -1,4 +1,7 @@
-struct transformSpinnerAttributes_source (
+struct transformSpinnersAttributes_source (
+
+	-- contains the item label for the main ui...
+	attributeLabel = "transform spinners",
 
 	-- contains the strings for the custom attributes rollout...
 	fn buildUi rollName posCheck rotCheck scaleCheck posXmin posXmax posYmin posYmax posZmin posZmax rotXmin rotXmax rotYmin rotYmax rotZmin rotZmax scaleXmin scaleXmax scaleYmin scaleYmax scaleZmin scaleZmax = (
@@ -99,4 +102,4 @@ struct transformSpinnerAttributes_source (
 		)
 	)
 
-transformSpinnerAttributes_source = transformSpinnerAttributes_source()
+transformSpinnersAttributes_source = transformSpinnersAttributes_source()

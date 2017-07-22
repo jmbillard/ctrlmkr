@@ -1,6 +1,9 @@
 struct gernericSliderWithSpinnerAttributes_source (
 
+	-- contains the item label for the main ui...
+	attributeLabel = "slider with spinner",
 
+	-- contains the strings to setup the custom attributes...
 	fn setPropUi uiNumber = (		
 
 		rollStart = "rollout setPropUi \"ui properties\" width:220\n(\n"
@@ -96,5 +99,3 @@ struct gernericSliderWithSpinnerAttributes_source (
 	)
 
 gernericSliderWithSpinnerAttributes_source = gernericSliderWithSpinnerAttributes_source()
-
-gernericSliderWithSpinnerAttributes_source.setPropUi 5
