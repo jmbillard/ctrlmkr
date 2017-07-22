@@ -6,20 +6,20 @@ struct transformSpinnerAttributes_source (
 		-- creates the ui (spinner and color tag)...
 		fn grupBlock tProp Range1 Range2 Range3 = (
 			spnCommonParams = "fieldwidth:128 align:#center scale:0.01"
-			"group \" " + tProp + ": \" (\n" +\
-			"imgTag img_" + tProp + "X bitmap:(bitmap 2 12 color:red) align:#left across:2 offset:[0,2]\n" +\
-			"spinner spn_" + tProp + "X \"\" range:" + Range1 + " " + spnCommonParams + " offset:[-44,0]\n" +\
-			"imgTag img_" + tProp + "Y bitmap:(bitmap 2 12 color:green) align:#left across:2 offset:[0,-2]\n" +\
-			"spinner spn_" + tProp + "Y \"\" range:" + Range2 + " " + spnCommonParams + " offset:[-44,-4]\n" +\
-			"imgTag img_" + tProp + "Z bitmap:(bitmap 2 12 color:blue) align:#left across:2 offset:[0,-2]\n" +\
+			"group \" " + tProp + ": \" (\n"+\
+			"imgTag img_" + tProp + "X bitmap:(bitmap 2 12 color:red) align:#left across:2 offset:[0,2]\n"+\
+			"spinner spn_" + tProp + "X \"\" range:" + Range1 + " " + spnCommonParams + " offset:[-44,0]\n"+\
+			"imgTag img_" + tProp + "Y bitmap:(bitmap 2 12 color:green) align:#left across:2 offset:[0,-2]\n"+\
+			"spinner spn_" + tProp + "Y \"\" range:" + Range2 + " " + spnCommonParams + " offset:[-44,-4]\n"+\
+			"imgTag img_" + tProp + "Z bitmap:(bitmap 2 12 color:blue) align:#left across:2 offset:[0,-2]\n"+\
 			"spinner spn_" + tProp + "Z \"\" range:" + Range3 + " " + spnCommonParams + " offset:[-44,-4])\n"
 			)
 
 		-- parameter block...
 		fn parametersBlock tProp rollName defValue = (
 			defValueS = defValue as string
-			"'" + rollName + "_" + tProp + "X' type:#float default:" + defValueS + " ui:(spn_" + tProp + "X)\n" +\
-			"'" + rollName + "_" + tProp + "Y' type:#float default:" + defValueS + " ui:(spn_" + tProp + "Y)\n" +\
+			"'" + rollName + "_" + tProp + "X' type:#float default:" + defValueS + " ui:(spn_" + tProp + "X)\n"+\
+			"'" + rollName + "_" + tProp + "Y' type:#float default:" + defValueS + " ui:(spn_" + tProp + "Y)\n"+\
 			"'" + rollName + "_" + tProp + "Z' type:#float default:" + defValueS + " ui:(spn_" + tProp + "Z)\n"
 			)
 
@@ -57,18 +57,18 @@ struct transformSpinnerAttributes_source (
 		scaleYRange = setRanges scaleYmin scaleYmax 1
 		scaleZRange = setRanges scaleZmin scaleZmax 1
 		scaleGrp = (\
-		"label lab_uniformScale \"uniform scale\" align:#left across:2\n" +\
-		"checkBox ckb_uniformScale \"\" align:#right across:1 checked:false offset:[10,0]\n" +\
-		grupBlock "scale" scaleXRange scaleYRange scaleZRange +\
-		"on ckb_uniformScale changed state do (\n" +\
-		"if ckb_uniformScale.checked == true then (\n" +\
-		"spn_ScaleY.enabled = false; spn_ScaleZ.enabled = false	\n" +\
-		"spn_ScaleY.value = spn_ScaleX.value\n" +\
-		"spn_ScaleZ.value = spn_ScaleX.value\n)\n" +\
-		"else (spn_ScaleY.enabled = true; spn_ScaleZ.enabled = true)\n)\n" +\
-		"on spn_ScaleX changed val do (\n" +\
-		"if ckb_uniformScale.checked == true do (\n" +\
-		"spn_ScaleY.value = spn_ScaleX.value\n" +\
+		"label lab_uniformScale \"uniform scale\" align:#left across:2\n"+\
+		"checkBox ckb_uniformScale \"\" align:#right across:1 checked:false offset:[10,0]\n"+\
+		grupBlock "scale" scaleXRange scaleYRange scaleZRange+\
+		"on ckb_uniformScale changed state do (\n"+\
+		"if ckb_uniformScale.checked == true then (\n"+\
+		"spn_ScaleY.enabled = false; spn_ScaleZ.enabled = false	\n"+\
+		"spn_ScaleY.value = spn_ScaleX.value\n"+\
+		"spn_ScaleZ.value = spn_ScaleX.value\n)\n"+\
+		"else (spn_ScaleY.enabled = true; spn_ScaleZ.enabled = true)\n)\n"+\
+		"on spn_ScaleX changed val do (\n"+\
+		"if ckb_uniformScale.checked == true do (\n"+\
+		"spn_ScaleY.value = spn_ScaleX.value\n"+\
 		"spn_ScaleZ.value = spn_ScaleX.value\n)\n)\n"
 		)
 

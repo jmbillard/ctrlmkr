@@ -36,7 +36,6 @@ struct ctrlmkr_source (
 			-- event handlers...
 			on set_btn1 pressed do (
 				ctrlmkr_source.checkHolder $ "---------- Ctrls ----------"
-				gernericSliderWithSpinnerAttributes_source.buildUi 1 "roll name" #(blue) #("ctrl name 1") #(-100) #(100)
 				)
 			on set_btn2 pressed do (
 				ctrlmkr_source.checkHolder $ "---------- Ctrls ----------"
@@ -50,4 +49,3 @@ struct ctrlmkr_source (
 
 ctrlmkr_source = ctrlmkr_source()
 
-ctrlmkr_source.mainUi()
