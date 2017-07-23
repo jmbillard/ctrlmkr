@@ -1,4 +1,6 @@
+-- ...
 include "generic slider with spinner attributes.ms"
+-- ...
 include "transform spinners attributes.ms"
 
 -- try to closes any instance of the main ui rollout...
@@ -125,18 +127,19 @@ struct ctrlmkr_source (
 				)
 			on btn_set pressed do (
 
-				--xxx = gernericSliderWithSpinnerAttributes_source()
-				--zzz = transformSpinnersAttributes_source()
-
-				rollStart = "rollout setPropUi \"ui properties\" width:220\n(\n"
+				-- starts the rollout definition...
+				rollStart = "rollout setPropUi \"ui properties\" width:210\n(\n"
 				
+				-- discribes the first group...
 				rollGrp = \
 					"group \" rollout name: \" (\n"+\
-					"editText roll_name \"\" text:\"my rollout\" width:200 height:16 align:#right offset:[0,0]\n)\n"+\
-					"button ceate_btn \"create custom attributes >\" width:198 height:30 offset:[-2,0]\n"
+					"editText roll_name \"\" text:\"my rollout\" width:190 height:16 align:#center offset:[-2,0]\n)\n"+\
+					"button ceate_btn \"create custom attributes >\" width:200 height:30 offset:[-2,0]\n"
 
+				-- generate a random color for the tags...
 				tagcolor = random (color 0 0 0) (color 255 255 255)
 
+				-- builds the strings to setup the custom attributes...
 				setPropGrp = ""
 				i = 1
 				for listItem in attList.items do (
@@ -148,28 +151,19 @@ struct ctrlmkr_source (
 						tagcolor = tagcolor * 0.5
 						)
 					if listItem == transformSpinnersAttributes_source.attributeLabel do (
-						append setPropGrp (\
-							"group \" transform spinners: \" (\n"+\
-							"label lab_Pos" + iS + " \"position:\" align:#left\n" +\
-							"spinner ui_spnPosX_min" + iS + " \"\"  width:60 range:[-9999999,9999999,-999] type:#float align:#left offset:[-4,0]\n"+\
-							"spinner ui_spnPosX_max" + iS + " \"\" width:60 range:[-9999999,9999999,999] type:#float align:#right offset:[0,-21]\n"+\
-							"label labPosX_range" + iS + " \"< X ranges >\" align:#center offset:[0,-21]\n"+\
-							"spinner ui_spnPosY_min" + iS + " \"\"  width:60 range:[-9999999,9999999,-999] type:#float align:#left offset:[-4,0]\n"+\
-							"spinner ui_spnPosY_max" + iS + " \"\" width:60 range:[-9999999,9999999,999] type:#float align:#right offset:[0,-21]\n"+\
-							"label labPosY_range" + iS + " \"< Y ranges >\" align:#center offset:[0,-21]\n"+\
-							"spinner ui_spnPosZ_min" + iS + " \"\"  width:60 range:[-9999999,9999999,-999] type:#float align:#left offset:[-4,0]\n"+\
-							"spinner ui_spnPosZ_max" + iS + " \"\" width:60 range:[-9999999,9999999,999] type:#float align:#right offset:[0,-21]\n"+\
-							"label labPosZ_range" + iS + " \"< Z ranges >\" align:#center offset:[0,-21]\n)\n"
-							)
+						append setPropGrp (transformSpinnersAttributes_source.setPropUi iS tagcolorS)
 						)
 
 					i+=1
 					)
+
+				-- builds the strings to setup the custom attributes...
 				rollEnd = \
 				"group \" info: \" (\n"+\
 				"label lab_credit1 \"set everything and click the big button\" align:#center\n"+\
 				")\n)createDialog setPropUi"
 
+				-- concatenates all the strings...
 				setPropUi = rollStart + rollGrp + setPropGrp + rollEnd
 
 				execute setPropUi
@@ -182,4 +176,3 @@ struct ctrlmkr_source (
 ctrlmkr_source = ctrlmkr_source()
 
 ctrlmkr_source.mainUi()
--- adds the selected template to the components list...

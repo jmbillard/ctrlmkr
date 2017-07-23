@@ -1,7 +1,41 @@
 struct transformSpinnersAttributes_source (
 
 	-- contains the item label for the main ui...
-	attributeLabel = "transform spinners",
+	attributeLabel = "transform spinners xyz",
+
+	-- contains the strings to setup the custom attributes...
+	fn setPropUi iS tagcolorS = (
+
+		range1 = "[-99999999999,99999999999,-9999]"
+		range2 = "[-99999999999,99999999999,9999]"
+		setPropGrp = (\
+			"group \" transform spinners xyz: \" (\n"+\
+			"radiobuttons rdo_trm" + iS + " \"\" labels:#(\"pos\",\"rot\",\"scale\") align:#left columns:1 offset:[0,2]\n" +\
+			"imgTag img_" + iS + "X bitmap:(bitmap 2 12 color:red) align:#center offset:[-34,-52]\n"+\
+			"spinner ui_spnX_min" + iS + " \"\"  width:60 range:" + range1 + " type:#float align:#center offset:[0,-19]\n"+\
+			"spinner ui_spnX_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n"+\
+			"imgTag img_" + iS + "Y bitmap:(bitmap 2 12 color:green) align:#center offset:[-34,0]\n"+\
+			"spinner ui_spnY_min" + iS + " \"\"  width:60 range:" + range1 + " type:#float align:#center offset:[0,-19]\n"+\
+			"spinner ui_spnY_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n"+\
+			"imgTag img_" + iS + "Z bitmap:(bitmap 2 12 color:blue) align:#center offset:[-34,0]\n"+\
+			"spinner ui_spnZ_min" + iS + " \"\"  width:60 range:" + range1 + " type:#float align:#center offset:[0,-19]\n"+\
+			"spinner ui_spnZ_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n)\n"--+\
+			--"label labPosZ_range" + iS + " \"< Z ranges >\" align:#center offset:[0,-21]\n)\n"
+			)
+		/*
+		attributescolorArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("color") (colorArray) ("tag_color") ("color")
+		attributesnameArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("name") (nameArray) ("sld_name") ("text")
+		attributesminArray = ctrlmkr_Utilities.createArray (uiNumer as integer) ("min") (minArray) ("ui_spn_min") ("value")
+		attributesmaxArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("max") (maxArray) ("ui_spn_max") ("value")
+
+		events = \
+			"on ceate_btn pressed do\n	(\n if selection.count != 1 then messagebox \"select one control object...\"\n else (\n"+\
+			"" + attributescolorArray + "\n" + attributesnameArray + "\n" + attributesminArray + "\n" + attributesmaxArray + "\n"+\
+			"gernericSliderWithSpinnerAttributes_source.buildUi (" + uiNumber as string + ") (roll_name.text) (color) (name) (min) (max)\n"+\
+			")\n)\n)\n"
+			*/
+		return setPropGrp
+		),
 
 	-- contains the strings for the custom attributes rollout...
 	fn buildUi rollName posCheck rotCheck scaleCheck posXmin posXmax posYmin posYmax posZmin posZmax rotXmin rotXmax rotYmin rotYmax rotZmin rotZmax scaleXmin scaleXmax scaleYmin scaleYmax scaleZmin scaleZmax = (

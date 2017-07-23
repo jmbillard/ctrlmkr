@@ -8,12 +8,10 @@ struct gernericSliderWithSpinnerAttributes_source (
 
 		setPropGrp = (\
 			"group \" slider with spinner: \" (\n"+\
-			"colorpicker tag_color" + iS + " \"\" color:" + tagcolorS + " width:65 height:20 align:#left offset:[-7,0]\n"+\
-			"label lab_spn" + iS + " \"tag color and name:\" align:#left offset:[65,-22]\n"+\
-			"editText sld_name" + iS + " \"\" text:\"my slider " + iS + "\" width:200 height:16 align:#right offset:[0,0]\n"+\
-			"spinner ui_spn_min" + iS + " \"\" width:60 range:[-9999999,9999999,-100] type:#float align:#left offset:[-4,0]\n"+\
-			"spinner ui_spn_max" + iS + " \"\" width:60 range:[-9999999,9999999,100] type:#float align:#right offset:[0,-21]\n"+\
-			"label lab_range" + iS + " \"< ranges >\" align:#center offset:[0,-21]\n)\n"
+			"colorpicker tag_color" + iS + " \"\" color:" + tagcolorS + " width:65 height:40 align:#left offset:[-7,0]\n"+\
+			"editText sld_name" + iS + " \"\" text:\"edit the name here...\" width:124 height:16 align:#right offset:[0,-44]\n"+\
+			"spinner ui_spn_min" + iS + " \"\" width:60 range:[-9999999,9999999,-100] type:#float align:#center offset:[0,0]\n"+\
+			"spinner ui_spn_max" + iS + " \"\" width:60 range:[-9999999,9999999,100] type:#float align:#right offset:[0,-21])\n"
 			)
 		/*
 		attributescolorArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("color") (colorArray) ("tag_color") ("color")
