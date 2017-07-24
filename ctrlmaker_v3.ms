@@ -25,6 +25,42 @@ struct ctrlmkr_source (
 		return templateLabels
 		),
 
+	fn buildCustomAttributes listArray rollName colorArray nameArray minArray maxArray = (
+
+		caStart = "cA = Attributes '" + rollName + "' (\nparameters '" + rollName + "' rollout:'" + rollName + "Ui' (\n"
+
+		caRollStart = ")\nrollout '" + rollName + "Ui' \"" + rollName + "\" (\n"
+
+		caParams = ""; caUi = ""
+
+		i = 1
+		for listItem in listArray do (
+
+			iS = i as string
+			
+			setUpItem1 = gernericSliderWithSpinnerAttributes_source.buildUi iS rollName colorArray[i] nameArray[i] minArray[i] maxArray[i]
+			--setUpItem2 = transformSpinnersAttributes_source.setPropUi iS
+
+			if listItem == gernericSliderWithSpinnerAttributes_source.attributeLabel do (
+				append caParams setUpItem1[1]
+				append caUi setUpItem1[2]
+				)
+			--if listItem == transformSpinnersAttributes_source.attributeLabel do (
+				--append caParams "parametro 2\n"
+				--append caUi "ui 2\n"
+				--append caParams setUpItem2[2]
+				--)
+
+			i+=1
+			)
+
+		caEnd = ")\n)\ncustAttributes.add $.modifiers[1] cA\nfree ca"
+
+		caGrp = caStart + caParams + caRollStart + caUi + caEnd
+		execute caGrp
+
+		),
+
 	-- moves selected items of a listbox by steps...
 	fn moveListItems itemArray index step = (
 		listArray = itemArray
@@ -137,36 +173,56 @@ struct ctrlmkr_source (
 					"button ceate_btn \"create custom attributes >\" width:200 height:30 offset:[-2,0]\n"
 
 				-- generate a random color for the tags...
-				tagcolor = random (color 0 0 0) (color 255 255 255)
+				tagColor = random (color 0 0 0) (color 255 255 255)
+				
 
+				setPropGrp = ""; bigS = ""
 				-- builds the strings to setup the custom attributes...
-				setPropGrp = ""
 				i = 1
 				for listItem in attList.items do (
+
 					iS = i as string
-					tagcolorS = tagcolor as string
+					tagColorS = tagColor as string
+					
+					setUpItem1 = gernericSliderWithSpinnerAttributes_source.setPropUi iS tagColorS
+					setUpItem2 = transformSpinnersAttributes_source.setPropUi iS
 
 					if listItem == gernericSliderWithSpinnerAttributes_source.attributeLabel do (
-						append setPropGrp (gernericSliderWithSpinnerAttributes_source.setPropUi iS tagcolorS)
-						tagcolor = tagcolor * 0.5
+						
+						append bigS ("append colorArray tag_color" + i as string + ".color;\n")
+						append bigS ("append nameArray sld_name" + i as string + ".text;\n")
+						append bigS ("append minArray ui_spn_min" + i as string + ".value;\n")
+						append bigS ("append maxArray ui_spn_max" + i as string + ".value;\n")
+
+						append setPropGrp setUpItem1[1]
+						tagColor = tagColor * 0.5
 						)
 					if listItem == transformSpinnersAttributes_source.attributeLabel do (
-						append setPropGrp (transformSpinnersAttributes_source.setPropUi iS tagcolorS)
+						append setPropGrp setUpItem2[1]
 						)
 
 					i+=1
 					)
 
+				eventGrp = \
+					"on ceate_btn pressed do (\n"+\
+					"colorArray = #(); nameArray = # (); minArray = #(); maxArray = #(); i = 1\n"+ bigS +\
+					"ctrlmkr_source.buildCustomAttributes " + attList.items as string + " roll_name.text "+\
+					"colorArray nameArray minArray maxArray\n"
+
 				-- builds the strings to setup the custom attributes...
-				rollEnd = \
+				infoGrp = \
 				"group \" info: \" (\n"+\
-				"label lab_credit1 \"set everything and click the big button\" align:#center\n"+\
-				")\n)createDialog setPropUi"
+				"label lab_credit1 \"set everything and click the big button\" align:#center)\n"
+
+				rollEnd = \
+				"))createDialog setPropUi"
 
 				-- concatenates all the strings...
-				setPropUi = rollStart + rollGrp + setPropGrp + rollEnd
+				setPropUi = rollStart + rollGrp + setPropGrp + infoGrp + eventGrp + rollEnd
 
 				execute setPropUi
+				--print setPropUi
 				)
 			)
 		createDialog ctrlmakerMainUi

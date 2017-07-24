@@ -13,63 +13,36 @@ struct gernericSliderWithSpinnerAttributes_source (
 			"spinner ui_spn_min" + iS + " \"\" width:60 range:[-9999999,9999999,-100] type:#float align:#center offset:[0,0]\n"+\
 			"spinner ui_spn_max" + iS + " \"\" width:60 range:[-9999999,9999999,100] type:#float align:#right offset:[0,-21])\n"
 			)
-		/*
-		attributescolorArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("color") (colorArray) ("tag_color") ("color")
-		attributesnameArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("name") (nameArray) ("sld_name") ("text")
-		attributesminArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("min") (minArray) ("ui_spn_min") ("value")
-		attributesmaxArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("max") (maxArray) ("ui_spn_max") ("value")
 
-		events = \
-			"on ceate_btn pressed do\n	(\n if selection.count != 1 then messagebox \"select one control object...\"\n else (\n"+\
-			"" + attributescolorArray + "\n" + attributesnameArray + "\n" + attributesminArray + "\n" + attributesmaxArray + "\n"+\
-			"gernericSliderWithSpinnerAttributes_source.buildUi (" + uiNumber as string + ") (roll_name.text) (color) (name) (min) (max)\n"+\
-			")\n)\n)\n"
-			*/
-		return setPropGrp
+		caParams = "(gernericSliderWithSpinnerAttributes_source.buildUi " + iS + " \"rollName\" " + tagcolorS + " \"sldName\" -10 10)[1]\n"
+
+		caUi = "(gernericSliderWithSpinnerAttributes_source.buildUi " + iS + " \"rollName\" " + tagcolorS + " \"sldName\" -10 10)[2]\n"
+
+		return #(setPropGrp,caParams,caUi)
 		),
 
 	-- contains the strings for the custom attributes rollout...
-	fn buildUi uiNumber rollName colorArray nameArray minRangeArray maxRangeArray = (	
+	fn buildUi uiIndex rollName colorVal sldName minRange maxRange = (	
 
-		-- defines all the color values, names and ranges in locoal variables...
-		uiVariables = ""
-		params = ""
-		colorui = ""
-		for i in 1 to uiNumber as integer do (
-			iS = i as string
-			append uiVariables (\
-				"local color" + iS + " = " + colorArray[i] as string + ","+\
-				"min" + iS + " = " + minRangeArray[i] as string + ","+\
-				"max" + iS + " = " + maxRangeArray[i] as string + ","+\
-				"sldname" + iS + " = \"" + nameArray[i] + "\" + \": \"\n" \
-				)
+		iS = uiIndex as string
 
-			-- sets the parameter block (links the spinner and slider parameters)...
-			append params ("'" + rollName + "_" + nameArray[i] + "' type:#float ui:(spn" + iS + ",sld" + iS + ")\n")
+		-- sets the parameter block (links the spinner and slider parameters)...
+		params = ("'" + iS + "_" + sldName + "' type:#float ui:(spn" + iS + ",sld" + iS + ")\n")
 
-			-- creates the ui (spinner, slider and color tag)...
-			rangeVal = "[min" + iS + ",max" + iS + ",min" + iS + "]"
-			append colorui (\
-				"group \" " + nameArray[i] + ": \" (\n"+\
-				"imgTag img" + iS + " bitmap:(bitmap 2 48 color:color" + iS + ") align:#left\n"+\
-				"spinner spn" + iS + " \"\" width:136 range:" + rangeVal + " type:#float scale:0.01 align:#center offset:[2,-50]\n"+\
-				"slider sld" + iS + " \"\" width:149 range:" + rangeVal + " ticks:6 align:#center offset:[8,-2]\n)\n"\
-				)
+		-- creates the ui (spinner, slider and color tag)...
+		rangeVal = "[" + minRange as string + "," + maxRange as string + "," + minRange as string + "]"
+		colorui = (\
+			"group \" " + sldName + ": \" (\n"+\
+			"imgTag img" + iS + " bitmap:(bitmap 2 48 color:" + colorVal as string + ") align:#left\n"+\
+			"spinner spn" + iS + " \"\" width:136 range:" + rangeVal + " type:#float scale:0.01 align:#center offset:[2,-50]\n"+\
+			"slider sld" + iS + " \"\" width:149 range:" + rangeVal + " ticks:6 align:#center offset:[8,-2]\n)\n"\
 			)
 
-		-- starts the custom attribute definition...
-		attributeStart = "cA = Attributes '" + rollName + "' (\nparameters '" + rollName + "' rollout:'" + rollName + "Ui' (\n"
-
-		-- starts the rollout definition...
-		rollStart = ")\nrollout '" + rollName + "Ui' \"" + rollName + "\" (\n" + uiVariables + "\n"
-
-		-- ends and adds the custom attribute definition...
-		attributeEnd = ")\n)\ncustAttributes.add $.modifiers[1] cA\nfree ca"
-
-		-- concatenates all the strings...
-		uiElements = attributeStart + params + rollStart + colorui + attributeEnd
-		execute uiElements
+		--execute uiElements
+		return #(params,colorui)
 		)
 	)
 
 gernericSliderWithSpinnerAttributes_source = gernericSliderWithSpinnerAttributes_source()
+
+(gernericSliderWithSpinnerAttributes_source.buildUi 1 "rollName" (color 177 28 226) "sldName" -10 10)[2]

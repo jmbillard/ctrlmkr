@@ -4,7 +4,7 @@ struct transformSpinnersAttributes_source (
 	attributeLabel = "transform spinners xyz",
 
 	-- contains the strings to setup the custom attributes...
-	fn setPropUi iS tagcolorS = (
+	fn setPropUi iS = (
 
 		range1 = "[-99999999999,99999999999,-9999]"
 		range2 = "[-99999999999,99999999999,9999]"
@@ -19,22 +19,10 @@ struct transformSpinnersAttributes_source (
 			"spinner ui_spnY_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n"+\
 			"imgTag img_" + iS + "Z bitmap:(bitmap 2 12 color:blue) align:#center offset:[-34,0]\n"+\
 			"spinner ui_spnZ_min" + iS + " \"\"  width:60 range:" + range1 + " type:#float align:#center offset:[0,-19]\n"+\
-			"spinner ui_spnZ_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n)\n"--+\
-			--"label labPosZ_range" + iS + " \"< Z ranges >\" align:#center offset:[0,-21]\n)\n"
+			"spinner ui_spnZ_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n)\n"
 			)
-		/*
-		attributescolorArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("color") (colorArray) ("tag_color") ("color")
-		attributesnameArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("name") (nameArray) ("sld_name") ("text")
-		attributesminArray = ctrlmkr_Utilities.createArray (uiNumer as integer) ("min") (minArray) ("ui_spn_min") ("value")
-		attributesmaxArray = ctrlmkr_Utilities.createArray (uiNumber as integer) ("max") (maxArray) ("ui_spn_max") ("value")
 
-		events = \
-			"on ceate_btn pressed do\n	(\n if selection.count != 1 then messagebox \"select one control object...\"\n else (\n"+\
-			"" + attributescolorArray + "\n" + attributesnameArray + "\n" + attributesminArray + "\n" + attributesmaxArray + "\n"+\
-			"gernericSliderWithSpinnerAttributes_source.buildUi (" + uiNumber as string + ") (roll_name.text) (color) (name) (min) (max)\n"+\
-			")\n)\n)\n"
-			*/
-		return setPropGrp
+		return #(setPropGrp)
 		),
 
 	-- contains the strings for the custom attributes rollout...
