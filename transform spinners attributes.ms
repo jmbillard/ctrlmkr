@@ -4,7 +4,7 @@ struct transformSpinnersAttributes_source (
 	attributeLabel = "transform spinners xyz",
 
 	-- contains the strings to setup the custom attributes...
-	fn setPropUi iS = (
+	fn setUpUiPrp iS = (
 
 		range1 = "[-99999999999,99999999999,-9999]"
 		range2 = "[-99999999999,99999999999,9999]"
@@ -22,11 +22,11 @@ struct transformSpinnersAttributes_source (
 			"spinner ui_spnZ_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n)\n"
 			)
 
-		return #(setPropGrp)
+		return setPropGrp
 		),
 
 	-- contains the strings for the custom attributes rollout...
-	fn buildUi rollName posCheck rotCheck scaleCheck posXmin posXmax posYmin posYmax posZmin posZmax rotXmin rotXmax rotYmin rotYmax rotZmin rotZmax scaleXmin scaleXmax scaleYmin scaleYmax scaleZmin scaleZmax = (
+	fn caParamUi rollName posCheck rotCheck scaleCheck posXmin posXmax posYmin posYmax posZmin posZmax rotXmin rotXmax rotYmin rotYmax rotZmin rotZmax scaleXmin scaleXmax scaleYmin scaleYmax scaleZmin scaleZmax = (
 
 		-- creates the ui (spinner and color tag)...
 		fn grupBlock tProp Range1 Range2 Range3 = (

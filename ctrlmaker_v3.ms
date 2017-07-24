@@ -1,6 +1,5 @@
--- ...
+-- contains the label setup ui and attribute parametrs/ui for the templates...
 include "generic slider with spinner attributes.ms"
--- ...
 include "transform spinners attributes.ms"
 
 -- try to closes any instance of the main ui rollout...
@@ -25,21 +24,23 @@ struct ctrlmkr_source (
 		return templateLabels
 		),
 
-	fn buildCustomAttributes listArray rollName colorArray nameArray minArray maxArray = (
+	-- filters the template list and builds the custom attribute definition...
+	fn ca_build listArray rollName colorArray nameArray minArray maxArray = (
 
-		caStart = "cA = Attributes '" + rollName + "' (\nparameters '" + rollName + "' rollout:'" + rollName + "Ui' (\n"
-
+		-- starts the custom attribute definition...
+		caStart = "ca = Attributes '" + rollName + "' (\nparameters '" + rollName + "' rollout:'" + rollName + "Ui' (\n"
+		-- starts the rollout definition...
 		caRollStart = ")\nrollout '" + rollName + "Ui' \"" + rollName + "\" (\n"
 
-		caParams = ""; caUi = ""
+		caParams = ""; caUi = ""; i = 1
 
-		i = 1
+		-- filters the template list to append the custom attribute parameters and ui...
 		for listItem in listArray do (
 
 			iS = i as string
 			
-			setUpItem1 = gernericSliderWithSpinnerAttributes_source.buildUi iS rollName colorArray[i] nameArray[i] minArray[i] maxArray[i]
-			--setUpItem2 = transformSpinnersAttributes_source.setPropUi iS
+			setUpItem1 = gernericSliderWithSpinnerAttributes_source.caParamUi iS rollName colorArray[i] nameArray[i] minArray[i] maxArray[i]
+			--setUpItem2 = transformSpinnersAttributes_source.setUpUiPrp iS
 
 			if listItem == gernericSliderWithSpinnerAttributes_source.attributeLabel do (
 				append caParams setUpItem1[1]
@@ -54,11 +55,76 @@ struct ctrlmkr_source (
 			i+=1
 			)
 
-		caEnd = ")\n)\ncustAttributes.add $.modifiers[1] cA\nfree ca"
+		-- ends the custom attribute definition and adds to the selected object first modifier...
+		caEnd = ")\n)\ncustAttributes.add $.modifiers[1] ca\nfree ca"
 
-		caGrp = caStart + caParams + caRollStart + caUi + caEnd
-		execute caGrp
+		caS = caStart + caParams + caRollStart + caUi + caEnd
+		execute caS
 
+		),
+
+	fn setUpUi_build listArray = (
+		
+		-- starts the rollout definition...
+		rollStart = "rollout setUpUi \"ui properties\" width:210\n(\n"
+		
+		-- discribes the first group...
+		rollGrp = \
+			"group \" modifier selection: \" (\n"+\
+			"dropdownlist ddl_mod \"\" items:#() )"+\
+			"group \" rollout name: \" (\n"+\
+			"editText roll_name \"\" text:\"my rollout\" height:16 align:#center offset:[-2,0])\n"+\
+			"button ceate_btn \"create custom attributes >\" width:200 height:30 offset:[-2,0]\n"
+
+		-- generate a random color for the tags...
+		tagColor = random (color 0 0 0) (color 255 255 255)
+
+		setPropGrp = ""; setUpS = ""; i = 1
+
+		-- filters the template list builds the strings to setup the custom attributes...	
+		for listItem in listArray do (
+
+			iS = i as string
+			tagColorS = tagColor as string
+
+			-- builds the strings to setup the custom attributes...	
+			if listItem == gernericSliderWithSpinnerAttributes_source.attributeLabel do (
+				
+				append setUpS ("append colorArray tag_color" + i as string + ".color;\n")
+				append setUpS ("append nameArray sld_name" + i as string + ".text;\n")
+				append setUpS ("append minArray ui_spn_min" + i as string + ".value;\n")
+				append setUpS ("append maxArray ui_spn_max" + i as string + ".value;\n")
+
+				append setPropGrp (gernericSliderWithSpinnerAttributes_source.setUpUiPrp iS tagColorS)
+				tagColor = tagColor * 0.5
+				)
+			if listItem == transformSpinnersAttributes_source.attributeLabel do (
+				append setPropGrp (transformSpinnersAttributes_source.setUpUiPrp iS)
+				)
+			i+=1
+			)
+
+		eventGrp = \
+			"on ddl_mod rightClick do (\n"+\
+			"modArray = #()\n"+\
+			"if selection.count == 1 do (\n"+\
+			"for m in $.modifiers do append modArray m.name\n"+\
+			"insertItem \"new attribute holder\" modArray 1)\nddl_mod.items = modArray)\n"+\
+			"on ceate_btn pressed do (\n"+\
+			"colorArray = #(); nameArray = # (); minArray = #(); maxArray = #(); i = 1\n"+ setUpS +\
+			"ctrlmkr_source.ca_build " + listArray as string + " roll_name.text "+\
+			"colorArray nameArray minArray maxArray\n"
+
+		-- builds the strings to setup the custom attributes...
+		infoGrp = \
+		"group \" info: \" (\n"+\
+		"label lab_credit1 \"set everything and click the big button\" align:#center)\n"
+
+		rollEnd = "))createDialog setUpUi"
+
+		-- concatenates all the strings...
+		setUpUiS = rollStart + rollGrp + setPropGrp + infoGrp + eventGrp + rollEnd
+		execute setUpUiS
 		),
 
 	-- moves selected items of a listbox by steps...
@@ -73,7 +139,6 @@ struct ctrlmkr_source (
 			if listIndex > 1 then (
 				returnIndex = listIndex - step
 				newIndex = listIndex - step
-
 				)
 			else (
 				returnIndex = listIndex
@@ -102,16 +167,17 @@ struct ctrlmkr_source (
 
 		return #(listArray,returnIndex)
 		),
-
-	-- main ui rollout...
-	fn mainUi = (
+-------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------
+	-- creates the main ui rollout...
+	fn mainUi_build = (
 		rollout ctrlmakerMainUi "ctrlmaker" width:210 (
 			group " select template: " (
 				dropdownlist ddl_attributes "" width:130 items:(ctrlmkr_source.setTemplateLabels()) across:2
 				button btn_add "add" width:50 align:#right
 				)
-			group " components: " (
-				listbox attList "" items:#() height:15
+			group " rollout components: " (
+				listbox list_caTemplates "" items:#() height:15
 				button btn_up "up" width:90 align:#left
 				button btn_down "down" width:90 align:#left
 				button btn_del "delete" width:90 height:48 align:#right offset:[0,-52]
@@ -124,105 +190,46 @@ struct ctrlmkr_source (
 
 			-- adds the selected template to the components list...
 			on btn_add pressed do (
-				newListSetup = attList.items
+				newListSetup = list_caTemplates.items
 				newIndex = newListSetup.count + 1
 
 				insertItem ddl_attributes.selected newListSetup newIndex
-				attList.items = newListSetup
-				attList.selection = newIndex
+				list_caTemplates.items = newListSetup
+				list_caTemplates.selection = newIndex
 				)
 			-- moves the selected template up in the components list...
 			on btn_up pressed do (
-				if attList.items.count >= 2 do (
-					newListSetup = ctrlmkr_source.moveListItems attList.items attList.selection 1
-					attList.items = newListSetup[1]
-					attList.selection = newListSetup[2]
+				if list_caTemplates.items.count >= 2 do (
+					newListSetup = ctrlmkr_source.moveListItems lisst_caTemplate.items list_caTemplate.selection 1
+					list_caTemplates.items = newListSetup[1]
+					list_caTemplates.selection = newListSetup[2]
 					)
 				)
 			-- moves the selected template down in the components list...
 			on btn_down pressed do (
-				if attList.items.count >= 2 do (
-					newListSetup = ctrlmkr_source.moveListItems attList.items attList.selection -1
-					attList.items = newListSetup[1]
-					attList.selection = newListSetup[2]
+				if list_caTemplates.items.count >= 2 do (
+					newListSetup = ctrlmkr_source.moveListItems lisst_caTemplate.items list_caTemplate.selection -1
+					list_caTemplates.items = newListSetup[1]
+					list_caTemplates.selection = newListSetup[2]
 					)
 				)
 			-- deletes the selected template in the components list...
 			on btn_del pressed do (
-				newListSetup = attList.items
-				listIndex = attList.selection
+				newListSetup = list_caTemplates.items
+				listIndex = list_caTemplates.selection
 				newIndex = listIndex - 1
 
 				if listIndex >= 1 do (
-					if attList.selection == 1 do newIndex = 1
+					if list_caTemplates.selection == 1 do newIndex = 1
 					deleteItem newListSetup listIndex
 					if newListSetup.count == 1 do newIndex = 1
 					)
-				attList.items = newListSetup
-				attList.selection = newIndex
+				list_caTemplates.items = newListSetup
+				list_caTemplates.selection = newIndex
 				)
+			-- creates the setup ui for every template in the components list...
 			on btn_set pressed do (
-
-				-- starts the rollout definition...
-				rollStart = "rollout setPropUi \"ui properties\" width:210\n(\n"
-				
-				-- discribes the first group...
-				rollGrp = \
-					"group \" rollout name: \" (\n"+\
-					"editText roll_name \"\" text:\"my rollout\" width:190 height:16 align:#center offset:[-2,0]\n)\n"+\
-					"button ceate_btn \"create custom attributes >\" width:200 height:30 offset:[-2,0]\n"
-
-				-- generate a random color for the tags...
-				tagColor = random (color 0 0 0) (color 255 255 255)
-				
-
-				setPropGrp = ""; bigS = ""
-				-- builds the strings to setup the custom attributes...
-				i = 1
-				for listItem in attList.items do (
-
-					iS = i as string
-					tagColorS = tagColor as string
-					
-					setUpItem1 = gernericSliderWithSpinnerAttributes_source.setPropUi iS tagColorS
-					setUpItem2 = transformSpinnersAttributes_source.setPropUi iS
-
-					if listItem == gernericSliderWithSpinnerAttributes_source.attributeLabel do (
-						
-						append bigS ("append colorArray tag_color" + i as string + ".color;\n")
-						append bigS ("append nameArray sld_name" + i as string + ".text;\n")
-						append bigS ("append minArray ui_spn_min" + i as string + ".value;\n")
-						append bigS ("append maxArray ui_spn_max" + i as string + ".value;\n")
-
-						append setPropGrp setUpItem1[1]
-						tagColor = tagColor * 0.5
-						)
-					if listItem == transformSpinnersAttributes_source.attributeLabel do (
-						append setPropGrp setUpItem2[1]
-						)
-
-					i+=1
-					)
-
-				eventGrp = \
-					"on ceate_btn pressed do (\n"+\
-					"colorArray = #(); nameArray = # (); minArray = #(); maxArray = #(); i = 1\n"+ bigS +\
-					"ctrlmkr_source.buildCustomAttributes " + attList.items as string + " roll_name.text "+\
-					"colorArray nameArray minArray maxArray\n"
-
-				-- builds the strings to setup the custom attributes...
-				infoGrp = \
-				"group \" info: \" (\n"+\
-				"label lab_credit1 \"set everything and click the big button\" align:#center)\n"
-
-				rollEnd = \
-				"))createDialog setPropUi"
-
-				-- concatenates all the strings...
-				setPropUi = rollStart + rollGrp + setPropGrp + infoGrp + eventGrp + rollEnd
-
-				execute setPropUi
-				--print setPropUi
+				ctrlmkr_source.setUpUi_build list_caTemplates.items
 				)
 			)
 		createDialog ctrlmakerMainUi
@@ -231,4 +238,4 @@ struct ctrlmkr_source (
 
 ctrlmkr_source = ctrlmkr_source()
 
-ctrlmkr_source.mainUi()
+ctrlmkr_source.mainUi_build()
