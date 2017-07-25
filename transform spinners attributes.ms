@@ -1,4 +1,4 @@
-struct transformSpinnersAttributes_source (
+struct caTransformSpinners_source (
 
 	-- contains the item label for the main ui...
 	attributeLabel = "transform spinners xyz",
@@ -45,17 +45,20 @@ struct transformSpinnersAttributes_source (
 
 			-- creates the ui (spinner and color tag)...
 			caUi += \
-				"imgTag img_" + tProp + axisArray[i] + iS + " bitmap:(bitmap 2 12 "+\
-				"color:" + colorArray[i] + ") align:#left across:2 --offset:[0,-2]\n"+\
+				"imgTag img_" + tProp + axisArray[i] + iS + " bitmap:(bitmap 2 16 "+\
+				"color:" + colorArray[i] + ") align:#left offset:[0,0]\n"+\
 				"spinner spn_" + tProp + axisArray[i] + iS + " \"\" range:" + range + " "+\
-				"fieldwidth:128 align:#center scale:0.01 offset:[-44,-2]\n"
+				"width:136 align:#center scale:0.01 offset:[2,-20]\n"
 		
+			-- checks for the last loop iteration and the "scale" property...
 			if i == 3 and tProp == "scale" do (
 				
+				-- creates the uniform scale checkbox...
 				scaleCkGrp = \
 					"label lab_uniformScale" + iS + " \"uniform scale\" align:#left across:2\n"+\
 					"checkBox ckb_uniformScale" + iS + " \"\" align:#right across:1 checked:false offset:[10,0]\n"
 				
+				-- sets the uniform scale event...
 				scaleEventGrp = \
 					"on ckb_uniformScale" + iS + " changed state do (\n"+\
 					"if ckb_uniformScale" + iS + ".checked == true then (\n"+\
@@ -68,6 +71,7 @@ struct transformSpinnersAttributes_source (
 					"spn_ScaleY" + iS + ".value = spn_ScaleX" + iS + ".value\n"+\
 					"spn_ScaleZ" + iS + ".value = spn_ScaleX" + iS + ".value\n)\n)\n"
 
+				-- merges the "scale" to the custom attribute ui...
 				caUi = scaleCkGrp + caUi + scaleEventGrp
 				)
 			)
@@ -77,4 +81,4 @@ struct transformSpinnersAttributes_source (
 		)
 	)
 
-transformSpinnersAttributes_source = transformSpinnersAttributes_source()
+caTransformSpinners_source = caTransformSpinners_source()

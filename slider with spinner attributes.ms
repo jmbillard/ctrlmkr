@@ -1,4 +1,4 @@
-struct gernericSliderWithSpinnerAttributes_source (
+struct caSliderWithSpinner_source (
 
 	-- contains the item label for the main ui...
 	attributeLabel = "slider with spinner",
@@ -37,4 +37,4 @@ struct gernericSliderWithSpinnerAttributes_source (
 		)
 	)
 
-gernericSliderWithSpinnerAttributes_source = gernericSliderWithSpinnerAttributes_source()
+caSliderWithSpinner_source = caSliderWithSpinner_source()
