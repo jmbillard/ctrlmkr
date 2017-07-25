@@ -26,13 +26,13 @@ struct gernericSliderWithSpinnerAttributes_source (
 
 		-- creates the ui (spinner, slider and color tag)...
 		rangeVal = "[" + minRange as string + "," + maxRange as string + "," + minRange as string + "]"
+
 		caUi = \
 			"group \" " + sldName + ": \" (\n"+\
 			"imgTag img" + iS + " bitmap:(bitmap 2 48 color:" + colorVal as string + ") align:#left\n"+\
 			"spinner spn" + iS + " \"\" width:136 range:" + rangeVal + " type:#float scale:0.01 align:#center offset:[2,-50]\n"+\
 			"slider sld" + iS + " \"\" width:149 range:" + rangeVal + " ticks:6 align:#center offset:[8,-2]\n)\n"\
 
-		--execute uiElements
 		return #(caParam,caUi)
 		)
 	)

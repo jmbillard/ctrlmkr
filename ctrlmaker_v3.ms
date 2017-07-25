@@ -1,4 +1,4 @@
--- contains the label setup ui and attribute parametrs/ui for the templates...
+-- contains the label setup ui and attribute parameters/ui for the templates...
 include "generic slider with spinner attributes.ms"
 include "transform spinners attributes.ms"
 
@@ -25,33 +25,47 @@ struct ctrlmkr_source (
 		),
 
 	-- filters the template list and builds the custom attribute definition...
-	fn ca_build listArray rollName colorArray nameArray minArray maxArray = (
+	fn ca_build listArray rollName ca1_setUpArray ca2_setUpArray = (
 
 		-- starts the custom attribute definition...
 		caStart = "ca = Attributes '" + rollName + "' (\nparameters '" + rollName + "' rollout:'" + rollName + "Ui' (\n"
 		-- starts the rollout definition...
 		caRollStart = ")\nrollout '" + rollName + "Ui' \"" + rollName + "\" (\n"
 
-		caParams = ""; caUi = ""; i = 1
+		caParams = ""; caUi = ""; i = 1; j = 1
 
 		-- filters the template list to append the custom attribute parameters and ui...
 		for listItem in listArray do (
 
 			iS = i as string
 			
-			setUpItem1 = gernericSliderWithSpinnerAttributes_source.caParamUi iS rollName colorArray[i] nameArray[i] minArray[i] maxArray[i]
-			--setUpItem2 = transformSpinnersAttributes_source.setUpUiPrp iS
 
 			if listItem == gernericSliderWithSpinnerAttributes_source.attributeLabel do (
-				append caParams setUpItem1[1]
-				append caUi setUpItem1[2]
-				)
-			--if listItem == transformSpinnersAttributes_source.attributeLabel do (
-				--append caParams "parametro 2\n"
-				--append caUi "ui 2\n"
-				--append caParams setUpItem2[2]
-				--)
+			
+				-- first custom attribute settings...
+				ca1_colorArray = ca1_setUpArray[1]
+				ca1_nameArray = ca1_setUpArray[2]
+				ca1_minArray = ca1_setUpArray[3]
+				ca1_maxArray = ca1_setUpArray[4]
 
+				setUpItem1 = gernericSliderWithSpinnerAttributes_source.caParamUi iS rollName ca1_colorArray[i] ca1_nameArray[i] ca1_minArray[i] ca1_maxArray[i]
+				
+				caParams += setUpItem1[1]
+				caUi += setUpItem1[2]
+				)
+			if listItem == transformSpinnersAttributes_source.attributeLabel do (
+
+				-- second custom attribute settings...
+				ca2_minArray = #((ca2_setUpArray[1])[j],(ca2_setUpArray[1])[j+1],(ca2_setUpArray[1])[j+2])
+				ca2_maxArray = #((ca2_setUpArray[2])[j],(ca2_setUpArray[2])[j+1],(ca2_setUpArray[2])[j+2])
+				ca2_propArray = ca2_setUpArray[3]
+
+				j+=3
+
+				setUpItem2 = transformSpinnersAttributes_source.caParamUi iS rollName ca2_minArray ca2_maxArray ca2_propArray[i]
+				caParams += setUpItem2[1]
+				caUi += setUpItem2[2]
+				)
 			i+=1
 			)
 
@@ -60,7 +74,6 @@ struct ctrlmkr_source (
 
 		caS = caStart + caParams + caRollStart + caUi + caEnd
 		execute caS
-
 		),
 
 	fn setUpUi_build listArray = (
@@ -68,10 +81,10 @@ struct ctrlmkr_source (
 		-- starts the rollout definition...
 		rollStart = "rollout setUpUi \"ui properties\" width:210\n(\n"
 		
-		-- discribes the first group...
+		-- describes the first group...
 		rollGrp = \
 			"group \" modifier selection: \" (\n"+\
-			"dropdownlist ddl_mod \"\" items:#() )"+\
+			"dropdownlist ddl_mod \"\" items:#() enabled:false)"+\
 			"group \" rollout name: \" (\n"+\
 			"editText roll_name \"\" text:\"my rollout\" height:16 align:#center offset:[-2,0])\n"+\
 			"button ceate_btn \"create custom attributes >\" width:200 height:30 offset:[-2,0]\n"
@@ -90,16 +103,27 @@ struct ctrlmkr_source (
 			-- builds the strings to setup the custom attributes...	
 			if listItem == gernericSliderWithSpinnerAttributes_source.attributeLabel do (
 				
-				append setUpS ("append colorArray tag_color" + i as string + ".color;\n")
-				append setUpS ("append nameArray sld_name" + i as string + ".text;\n")
-				append setUpS ("append minArray ui_spn_min" + i as string + ".value;\n")
-				append setUpS ("append maxArray ui_spn_max" + i as string + ".value;\n")
+				setUpS += \
+					"append ca1_colorArray tag_color" + iS + ".color\n"+\
+					"append ca1_nameArray sld_name" + iS + ".text\n"+\
+					"append ca1_minArray ui_spn_min" + iS + ".value\n"+\
+					"append ca1_maxArray ui_spn_max" + iS + ".value\n"
 
-				append setPropGrp (gernericSliderWithSpinnerAttributes_source.setUpUiPrp iS tagColorS)
+				setPropGrp += gernericSliderWithSpinnerAttributes_source.setUpUiPrp iS tagColorS
 				tagColor = tagColor * 0.5
 				)
 			if listItem == transformSpinnersAttributes_source.attributeLabel do (
-				append setPropGrp (transformSpinnersAttributes_source.setUpUiPrp iS)
+
+				setUpS += \
+					"append ca2_propArray rdo_trm" + iS + ".state\n"+\
+					"append ca2_minArray ui_spnX_min" + iS + ".value\n"+\
+					"append ca2_maxArray ui_spnX_max" + iS + ".value\n"+\
+					"append ca2_minArray ui_spnY_min" + iS + ".value\n"+\
+					"append ca2_maxArray ui_spnY_max" + iS + ".value\n"+\
+					"append ca2_minArray ui_spnZ_min" + iS + ".value\n"+\
+					"append ca2_maxArray ui_spnZ_max" + iS + ".value\n"
+
+				setPropGrp += transformSpinnersAttributes_source.setUpUiPrp iS
 				)
 			i+=1
 			)
@@ -111,9 +135,11 @@ struct ctrlmkr_source (
 			"for m in $.modifiers do append modArray m.name\n"+\
 			"insertItem \"new attribute holder\" modArray 1)\nddl_mod.items = modArray)\n"+\
 			"on ceate_btn pressed do (\n"+\
-			"colorArray = #(); nameArray = # (); minArray = #(); maxArray = #(); i = 1\n"+ setUpS +\
-			"ctrlmkr_source.ca_build " + listArray as string + " roll_name.text "+\
-			"colorArray nameArray minArray maxArray\n"
+			"ca1_colorArray = #(); ca1_nameArray = # (); ca1_minArray = #(); ca1_maxArray = #()\n"+\
+			"i = 1; ca2_minArray = #(); ca2_maxArray = #(); ca2_propArray = #()\n"+ setUpS +\
+			"ca1_setUpArray = #(ca1_colorArray,ca1_nameArray,ca1_minArray,ca1_maxArray)\n"+\
+			"ca2_setUpArray = #(ca2_minArray,ca2_maxArray,ca2_propArray)\n"+\
+			"ctrlmkr_source.ca_build " + listArray as string + " roll_name.text ca1_setUpArray ca2_setUpArray\n"
 
 		-- builds the strings to setup the custom attributes...
 		infoGrp = \
@@ -134,7 +160,7 @@ struct ctrlmkr_source (
 		returnIndex = undefined
 		newIndex = undefined
 
-		-- restricts the firt item to go up and the last to go down...
+		-- restricts the first item to go up and the last to go down...
 		if step >= 0 then (
 			if listIndex > 1 then (
 				returnIndex = listIndex - step

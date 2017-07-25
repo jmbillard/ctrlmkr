@@ -8,7 +8,7 @@ struct transformSpinnersAttributes_source (
 
 		range1 = "[-99999999999,99999999999,-9999]"
 		range2 = "[-99999999999,99999999999,9999]"
-		setPropGrp = (\
+		setPropGrp = \
 			"group \" transform spinners xyz: \" (\n"+\
 			"radiobuttons rdo_trm" + iS + " \"\" labels:#(\"pos\",\"rot\",\"scale\") align:#left columns:1 offset:[0,2]\n" +\
 			"imgTag img_" + iS + "X bitmap:(bitmap 2 12 color:red) align:#center offset:[-34,-52]\n"+\
@@ -20,107 +20,60 @@ struct transformSpinnersAttributes_source (
 			"imgTag img_" + iS + "Z bitmap:(bitmap 2 12 color:blue) align:#center offset:[-34,0]\n"+\
 			"spinner ui_spnZ_min" + iS + " \"\"  width:60 range:" + range1 + " type:#float align:#center offset:[0,-19]\n"+\
 			"spinner ui_spnZ_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n)\n"
-			)
 
 		return setPropGrp
 		),
 
 	-- contains the strings for the custom attributes rollout...
-	fn caParamUi rollName posCheck rotCheck scaleCheck posXmin posXmax posYmin posYmax posZmin posZmax rotXmin rotXmax rotYmin rotYmax rotZmin rotZmax scaleXmin scaleXmax scaleYmin scaleYmax scaleZmin scaleZmax = (
+	fn caParamUi uiIndex rollName minArray maxArray propIndex = (
 
-		-- creates the ui (spinner and color tag)...
-		fn grupBlock tProp Range1 Range2 Range3 = (
-			spnCommonParams = "fieldwidth:128 align:#center scale:0.01"
-			"group \" " + tProp + ": \" (\n"+\
-			"imgTag img_" + tProp + "X bitmap:(bitmap 2 12 color:red) align:#left across:2 offset:[0,2]\n"+\
-			"spinner spn_" + tProp + "X \"\" range:" + Range1 + " " + spnCommonParams + " offset:[-44,0]\n"+\
-			"imgTag img_" + tProp + "Y bitmap:(bitmap 2 12 color:green) align:#left across:2 offset:[0,-2]\n"+\
-			"spinner spn_" + tProp + "Y \"\" range:" + Range2 + " " + spnCommonParams + " offset:[-44,-4]\n"+\
-			"imgTag img_" + tProp + "Z bitmap:(bitmap 2 12 color:blue) align:#left across:2 offset:[0,-2]\n"+\
-			"spinner spn_" + tProp + "Z \"\" range:" + Range3 + " " + spnCommonParams + " offset:[-44,-4])\n"
-			)
+		iS = uiIndex as string
+		trm = #("position","rotation","scale"); tProp = trm[propIndex]
+		colorArray = #("red","green","blue"); axisArray = #("X","Y","Z")
 
-		-- parameter block...
-		fn parametersBlock tProp rollName defValue = (
-			defValueS = defValue as string
-			"'" + rollName + "_" + tProp + "X' type:#float default:" + defValueS + " ui:(spn_" + tProp + "X)\n"+\
-			"'" + rollName + "_" + tProp + "Y' type:#float default:" + defValueS + " ui:(spn_" + tProp + "Y)\n"+\
-			"'" + rollName + "_" + tProp + "Z' type:#float default:" + defValueS + " ui:(spn_" + tProp + "Z)\n"
-			)
+		caParam = ""
+		caUi = "group \" " + tProp + ": \" (\n"
 
-		-- sets the possible spinner range...
-		fn setRanges minValue maxValue defValue = (
-			"[" + minValue as string + "," + maxValue as string + "," + defValue as string + "]"
-			)
+		for i in 1 to 3 do (
+			defValueS = ((minArray[i] + maxArray[i]) / 2) as string
+			range = "[" + minArray[i] as string + "," + maxArray[i] as string + "," + defValueS + "]"
+			
+			-- sets the parameter block...
+			caParam +=
+				"'" + iS + "_" + tProp + axisArray[i] + "' type:#float "+\
+				"default:" + defValueS + " ui:(spn_" + tProp + axisArray[i] + iS + ")\n"
 
-		-- starts the custom attribute definition...
-		attributeStart = \
-		"cA = Attributes '" + rollName + "'\n(\nparameters '" + rollName + "' rollout:'" + rollName + "Ui'\n(\n"
+			-- creates the ui (spinner and color tag)...
+			caUi += \
+				"imgTag img_" + tProp + axisArray[i] + iS + " bitmap:(bitmap 2 12 "+\
+				"color:" + colorArray[i] + ") align:#left across:2 --offset:[0,-2]\n"+\
+				"spinner spn_" + tProp + axisArray[i] + iS + " \"\" range:" + range + " "+\
+				"fieldwidth:128 align:#center scale:0.01 offset:[-44,-2]\n"
+		
+			if i == 3 and tProp == "scale" do (
+				
+				scaleCkGrp = \
+					"label lab_uniformScale" + iS + " \"uniform scale\" align:#left across:2\n"+\
+					"checkBox ckb_uniformScale" + iS + " \"\" align:#right across:1 checked:false offset:[10,0]\n"
+				
+				scaleEventGrp = \
+					"on ckb_uniformScale" + iS + " changed state do (\n"+\
+					"if ckb_uniformScale" + iS + ".checked == true then (\n"+\
+					"spn_ScaleY" + iS + ".enabled = false; spn_ScaleZ" + iS + ".enabled = false	\n"+\
+					"spn_ScaleY" + iS + ".value = spn_ScaleX" + iS + ".value\n"+\
+					"spn_ScaleZ" + iS + ".value = spn_ScaleX" + iS + ".value\n)\n"+\
+					"else (spn_ScaleY" + iS + ".enabled = true; spn_ScaleZ" + iS + ".enabled = true)\n)\n"+\
+					"on spn_ScaleX" + iS + " changed val do (\n"+\
+					"if ckb_uniformScale" + iS + ".checked == true do (\n"+\
+					"spn_ScaleY" + iS + ".value = spn_ScaleX" + iS + ".value\n"+\
+					"spn_ScaleZ" + iS + ".value = spn_ScaleX" + iS + ".value\n)\n)\n"
 
-		-- sets the parameter block... 
-		paramsPos = parametersBlock "position" "roll name" 0
-		paramsRot = parametersBlock "rotation" "roll name" 0
-		paramsScale = parametersBlock "scale" "roll name" 1
-
-		-- starts the rollout definition...
-		rollStart = ")\nrollout '" + rollName + "Ui' \"" + rollName + "\" (\n"
-
-		-- creates the position ui...
-		posXRange = setRanges posXmin posXmax 0
-		posYRange = setRanges posYmin posYmax 0
-		posZRange = setRanges posZmin posZmax 0
-		posGrp = grupBlock "position" posXRange posYRange posZRange
-
-		-- creates the rotation ui...
-		rotXRange = setRanges rotXmin rotXmax 0
-		rotYRange = setRanges rotYmin rotYmax 0
-		rotZRange = setRanges rotZmin rotZmax 0
-		rotGrp = grupBlock "rotation" rotXRange rotYRange rotZRange
-
-		-- creates the scale ui (with a uniform scale toggle)...
-		scaleXRange = setRanges scaleXmin scaleXmax 1
-		scaleYRange = setRanges scaleYmin scaleYmax 1
-		scaleZRange = setRanges scaleZmin scaleZmax 1
-		scaleGrp = (\
-		"label lab_uniformScale \"uniform scale\" align:#left across:2\n"+\
-		"checkBox ckb_uniformScale \"\" align:#right across:1 checked:false offset:[10,0]\n"+\
-		grupBlock "scale" scaleXRange scaleYRange scaleZRange+\
-		"on ckb_uniformScale changed state do (\n"+\
-		"if ckb_uniformScale.checked == true then (\n"+\
-		"spn_ScaleY.enabled = false; spn_ScaleZ.enabled = false	\n"+\
-		"spn_ScaleY.value = spn_ScaleX.value\n"+\
-		"spn_ScaleZ.value = spn_ScaleX.value\n)\n"+\
-		"else (spn_ScaleY.enabled = true; spn_ScaleZ.enabled = true)\n)\n"+\
-		"on spn_ScaleX changed val do (\n"+\
-		"if ckb_uniformScale.checked == true do (\n"+\
-		"spn_ScaleY.value = spn_ScaleX.value\n"+\
-		"spn_ScaleZ.value = spn_ScaleX.value\n)\n)\n"
-		)
-
-		-- ends and adds the custom attribute definition...
-		attributeEnd = ")\n)\ncustAttributes.add $.modifiers[1] cA\nfree ca"
-
-		if posCheck == true or rotCheck == true or scaleCheck == true do (
-			params = ""
-			spinnersUi = ""
-
-			if posCheck == true do (
-				params = params + paramsPos
-				spinnersUi = spinnersUi + posGrp
+				caUi = scaleCkGrp + caUi + scaleEventGrp
 				)
-			if rotCheck == true do (
-				params = params + paramsRot
-				spinnersUi = spinnersUi + rotGrp
-				)
-			if scaleCheck == true do (
-				params = params + paramsScale
-				spinnersUi = spinnersUi + scaleGrp
-				)
-
-			-- concatenates all the strings...
-			uiElements = attributeStart + params + rollStart + spinnersUi + attributeEnd
-			execute uiElements
 			)
+		caUi += ")\n"
+
+		return #(caParam,caUi)
 		)
 	)
 
