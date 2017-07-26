@@ -2,11 +2,8 @@
 -- try to closes any instance of the main ui rollout...
 try (destroyDialog ctrlmakerMainUi) catch()
 
--- includes all the templates and setup code ...
+-- includes the custom attributes setup code ...
 include "ctrlmaker attributes setup.ms"
-include "slider with spinner ctrlmaker_attributes.ms"
-include "transform spinners ctrlmaker_attributes.ms"
-include "spinner ctrlmaker_attributes.ms"
 
 struct ctrlmkrMain_source (
 
@@ -21,11 +18,12 @@ struct ctrlmkrMain_source (
 	-- sets all the attribute template labels...
 	fn setTemplateLabels = (
 
-		item1 = caSliderWithSpinner_source.attributeLabel
-		item2 = caTransformSpinners_source.attributeLabel
-		item3 = caSpinner_source.attributeLabel
+		item1 = caSlider_source.attributeLabel
+		item2 = caSpinner_source.attributeLabel
+		item3 = caSliderWithSpinner_source.attributeLabel
+		item4 = caTransformSpinners_source.attributeLabel
 
-		templateLabels = #(item1, item2, item3)
+		templateLabels = #(item1, item2, item3, item4)
 
 		return templateLabels
 		),
@@ -86,21 +84,21 @@ struct ctrlmkrMain_source (
 	fn mainUi_build = (
 
 		rollout ctrlmakerMainUi "ctrlmaker" width:210 (
-			group " select template: " (
+			group " custom attribute template: " (
 				dropdownlist ddl_attributes "" width:130 items:(ctrlmkrMain_source.setTemplateLabels()) across:2
 				button btn_add "add" width:50 align:#right
 				)
 
 			group " rollout components: " (
 				listbox list_caTemplates "" items:#() height:15
-				label lab_num "edit rollout components:" align:#left enabled:false
+				label lab_num " edit rollout components:" align:#left
 				imgTag img_sep1 bitmap:(bitmap 160 1 color:(color 10 10 10)) align:#center
 				button btn_up "up" width:60 align:#left
 				button btn_down "down" width:60 align:#left
 				button btn_del "delete selected" width:120 height:48 align:#right offset:[0,-52]
 				)
 
-			button btn_set "set properties" width:200 height:48 align:#center
+			button btn_set "custom attributes setup" width:200 height:48 align:#center
 			group " abaut: " (
 				label lab_credit1 "ctrlmaker v3" across:2 align:#left
 				hyperLink link_credit "pointlesspineapple.com" address:"https://www.pointlesspineapple.com/" align:#right
@@ -113,6 +111,7 @@ struct ctrlmkrMain_source (
 				newIndex = newListSetup.count + 1
 
 				insertItem ddl_attributes.selected newListSetup newIndex
+				
 				list_caTemplates.items = newListSetup
 				list_caTemplates.selection = newIndex
 				)
@@ -122,6 +121,7 @@ struct ctrlmkrMain_source (
 				if list_caTemplates.items.count >= 2 do (
 
 					newListSetup = ctrlmkrMain_source.moveListItems list_caTemplates.items list_caTemplates.selection 1
+					
 					list_caTemplates.items = newListSetup[1]
 					list_caTemplates.selection = newListSetup[2]
 					)
@@ -133,6 +133,7 @@ struct ctrlmkrMain_source (
 				if list_caTemplates.items.count >= 2 do (
 
 					newListSetup = ctrlmkrMain_source.moveListItems list_caTemplates.items list_caTemplates.selection -1
+					
 					list_caTemplates.items = newListSetup[1]
 					list_caTemplates.selection = newListSetup[2]
 					)
