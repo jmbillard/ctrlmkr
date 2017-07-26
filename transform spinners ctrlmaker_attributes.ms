@@ -35,19 +35,20 @@ struct caTransformSpinners_source (
 		caUi = "group \" " + tProp + ": \" (\n"
 
 		for i in 1 to 3 do (
+			
 			defValueS = ((minArray[i] + maxArray[i]) / 2) as string
 			range = "[" + minArray[i] as string + "," + maxArray[i] as string + "," + defValueS + "]"
 			
 			-- sets the parameter block...
 			caParam +=
-				"'" + iS + "_" + tProp + axisArray[i] + "' type:#float "+\
-				"default:" + defValueS + " ui:(spn_" + tProp + axisArray[i] + iS + ")\n"
+				"'trs_" + iS + "_" + tProp + axisArray[i] + "' type:#float "+\
+				"default:" + defValueS + " ui:(trs_spn_" + tProp + axisArray[i] + iS + ")\n"
 
 			-- creates the ui (spinner and color tag)...
 			caUi += \
-				"imgTag img_" + tProp + axisArray[i] + iS + " bitmap:(bitmap 2 16 "+\
-				"color:" + colorArray[i] + ") align:#left offset:[0,0]\n"+\
-				"spinner spn_" + tProp + axisArray[i] + iS + " \"\" range:" + range + " "+\
+				"imgTag trs_img_" + tProp + axisArray[i] + iS + " bitmap:(bitmap 2 16 "+\
+				"color:" + colorArray[i] + ") align:#left\n"+\
+				"spinner trs_spn_" + tProp + axisArray[i] + iS + " \"\" range:" + range + " "+\
 				"width:136 align:#center scale:0.01 offset:[2,-20]\n"
 		
 			-- checks for the last loop iteration and the "scale" property...
@@ -55,26 +56,27 @@ struct caTransformSpinners_source (
 				
 				-- creates the uniform scale checkbox...
 				scaleCkGrp = \
-					"label lab_uniformScale" + iS + " \"uniform scale\" align:#left across:2\n"+\
-					"checkBox ckb_uniformScale" + iS + " \"\" align:#right across:1 checked:false offset:[10,0]\n"
+					"label trs_lab_uniformScale" + iS + " \"uniform scale\" align:#left across:2\n"+\
+					"checkBox trs_ckb_uniformScale" + iS + " \"\" align:#right across:1 checked:false offset:[10,0]\n"
 				
 				-- sets the uniform scale event...
 				scaleEventGrp = \
-					"on ckb_uniformScale" + iS + " changed state do (\n"+\
-					"if ckb_uniformScale" + iS + ".checked == true then (\n"+\
-					"spn_ScaleY" + iS + ".enabled = false; spn_ScaleZ" + iS + ".enabled = false	\n"+\
-					"spn_ScaleY" + iS + ".value = spn_ScaleX" + iS + ".value\n"+\
-					"spn_ScaleZ" + iS + ".value = spn_ScaleX" + iS + ".value\n)\n"+\
-					"else (spn_ScaleY" + iS + ".enabled = true; spn_ScaleZ" + iS + ".enabled = true)\n)\n"+\
-					"on spn_ScaleX" + iS + " changed val do (\n"+\
-					"if ckb_uniformScale" + iS + ".checked == true do (\n"+\
-					"spn_ScaleY" + iS + ".value = spn_ScaleX" + iS + ".value\n"+\
-					"spn_ScaleZ" + iS + ".value = spn_ScaleX" + iS + ".value\n)\n)\n"
+					"on trs_ckb_uniformScale" + iS + " changed state do (\n"+\
+					"if trs_ckb_uniformScale" + iS + ".checked == true then (\n"+\
+					"trs_spn_ScaleY" + iS + ".enabled = false; trs_spn_ScaleZ" + iS + ".enabled = false	\n"+\
+					"trs_spn_ScaleY" + iS + ".value = trs_spn_ScaleX" + iS + ".value\n"+\
+					"trs_spn_ScaleZ" + iS + ".value = trs_spn_ScaleX" + iS + ".value\n)\n"+\
+					"else (trs_spn_ScaleY" + iS + ".enabled = true; trs_spn_ScaleZ" + iS + ".enabled = true)\n)\n"+\
+					"on trs_spn_ScaleX" + iS + " changed val do (\n"+\
+					"if trs_ckb_uniformScale" + iS + ".checked == true do (\n"+\
+					"trs_spn_ScaleY" + iS + ".value = trs_spn_ScaleX" + iS + ".value\n"+\
+					"trs_spn_ScaleZ" + iS + ".value = trs_spn_ScaleX" + iS + ".value\n)\n)\n"
 
 				-- merges the "scale" to the custom attribute ui...
 				caUi = scaleCkGrp + caUi + scaleEventGrp
 				)
 			)
+
 		caUi += ")\n"
 
 		return #(caParam,caUi)

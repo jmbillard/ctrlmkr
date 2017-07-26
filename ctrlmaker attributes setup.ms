@@ -1,15 +1,16 @@
 struct ctrlmkrCaSetUp_source (
 
 	-- filters the template list and builds the custom attribute definition...
-	fn ca_build listArray rollName ca1_setUpArray ca2_setUpArray = (
+	fn ca_build listArray rollName ca1_setUpArray ca2_setUpArray ca3_setUpArray = (
 
 		-- starts the custom attribute definition...
 		caStart = "ca = Attributes '" + rollName + "' (\nparameters '" + rollName + "' rollout:'" + rollName + "Ui' (\n"
+
 		-- starts the rollout definition...
 		caRollStart = ")\nrollout '" + rollName + "Ui' \"" + rollName + "\" (\n"
 
 		-- creates the custom attribute variables for parameters, ui and counters...
-		caParams = ""; caUi = ""; j = 1; ca1= 1; ca2 = 1
+		caParams = ""; caUi = ""; j = 1; ca1= 1; ca2 = 1; ca3 = 1
 
 		-- filters the template list to append the custom attribute parameters and ui...
 		for listItem in listArray do (
@@ -31,6 +32,7 @@ struct ctrlmkrCaSetUp_source (
 
 				ca1 += 1
 				)
+
 			-- "transform spinners xyz" template..
 			if listItem == caTransformSpinners_source.attributeLabel do (
 
@@ -47,14 +49,32 @@ struct ctrlmkrCaSetUp_source (
 
 				ca2 += 1
 				)
+
+			-- "spinners" template..
+			if listItem == caSpinner_source.attributeLabel do (
+			
+				-- all the caParamUi arguments for this template...
+				ca3_color = (ca3_setUpArray[1])[ca3]
+				ca3_name = (ca3_setUpArray[2])[ca3]
+				ca3_min = (ca3_setUpArray[3])[ca3]
+				ca3_max = (ca3_setUpArray[4])[ca3]
+				ca3S = ca3 as string
+
+				setUpItem3 = caSpinner_source.caParamUi ca3S rollName ca3_color ca3_name ca3_min ca3_max
+				
+				caParams += setUpItem3[1]
+				caUi += setUpItem3[2]
+
+				ca3 += 1
+				)
 			)
 
 		-- ends the custom attribute definition and adds to the selected object first modifier...
 		caEnd = ")\n)\ncustAttributes.add $.modifiers[1] ca\nfree ca"
 
 		caS = caStart + caParams + caRollStart + caUi + caEnd
+
 		execute caS
-		--print caS
 		),
 
 	fn setUpUi_build listArray = (
@@ -93,6 +113,7 @@ struct ctrlmkrCaSetUp_source (
 				setPropGrp += caSliderWithSpinner_source.setUpUiPrp iS tagColorS
 				tagColor = tagColor * 0.5
 				)
+
 			if listItem == caTransformSpinners_source.attributeLabel do (
 
 				setUpS += \
@@ -106,33 +127,56 @@ struct ctrlmkrCaSetUp_source (
 
 				setPropGrp += caTransformSpinners_source.setUpUiPrp iS
 				)
+
+			if listItem == caSpinner_source.attributeLabel do (
+				
+				setUpS += \
+					"append ca3_colorArray tag_color" + iS + ".color\n"+\
+					"append ca3_nameArray sld_name" + iS + ".text\n"+\
+					"append ca3_minArray ui_spn_min" + iS + ".value\n"+\
+					"append ca3_maxArray ui_spn_max" + iS + ".value\n"
+
+				setPropGrp += caSpinner_source.setUpUiPrp iS tagColorS
+				tagColor = tagColor * 0.5
+				)
+
 			i+=1
 			)
 
+		-- creates all custom attributes...
 		eventGrp = \
 			"on ddl_mod rightClick do (\n"+\
 			"modArray = #()\n"+\
 			"if selection.count == 1 do (\n"+\
 			"for m in $.modifiers do append modArray m.name\n"+\
 			"insertItem \"new attribute holder\" modArray 1)\nddl_mod.items = modArray)\n"+\
-			"on ceate_btn pressed do (\n"+\
+			"on ceate_btn pressed do (\ni = 1\n"+\
+			-- a bunch of empty arrays...
 			"ca1_colorArray = #(); ca1_nameArray = # (); ca1_minArray = #(); ca1_maxArray = #()\n"+\
-			"i = 1; ca2_minArray = #(); ca2_maxArray = #(); ca2_propArray = #()\n"+ setUpS +\
-			"ca1_setUpArray = #(ca1_colorArray,ca1_nameArray,ca1_minArray,ca1_maxArray)\n"+\
-			"ca2_setUpArray = #(ca2_minArray,ca2_maxArray,ca2_propArray)\n"+\
-			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll_name.text ca1_setUpArray ca2_setUpArray\n"
+			"ca2_minArray = #(); ca2_maxArray = #(); ca2_propArray = #()\n"+\
+			"ca3_colorArray = #(); ca3_nameArray = # (); ca3_minArray = #(); ca3_maxArray = #()\n"+\
+			-- creates all the setup arrays...
+			setUpS +\
+			"ca1_setUpArray = #(ca1_colorArray, ca1_nameArray, ca1_minArray, ca1_maxArray)\n"+\
+			"ca2_setUpArray = #(ca2_minArray, ca2_maxArray, ca2_propArray)\n"+\
+			"ca3_setUpArray = #(ca3_colorArray, ca3_nameArray, ca3_minArray, ca3_maxArray)\n"+\
+			-- creates all the custom attributes...
+			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll_name.text "+\
+			"ca1_setUpArray ca2_setUpArray ca3_setUpArray\n"
 
 		-- builds the strings to setup the custom attributes...
 		infoGrp = \
-		"group \" info: \" (\n"+\
-		"label lab_credit1 \"set everything and click the big button\" align:#center)\n"
+			"group \" info: \" (\n"+\
+			"label lab_credit1 \"set everything and click the big button\" align:#center)\n"
 
 		rollEnd = "))createDialog setUpUi"
 
 		-- concatenates all the strings...
 		setUpUiS = rollStart + rollGrp + setPropGrp + infoGrp + eventGrp + rollEnd
+
 		execute setUpUiS
 		)
 	)
+
 ctrlmkrCaSetUp_source = ctrlmkrCaSetUp_source()
 
