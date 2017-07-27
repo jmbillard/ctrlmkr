@@ -81,19 +81,24 @@ struct ctrlmkrCaSetUp_source (
 
 	fn setUpUi_build listArray = (
 		
+		roll1Start = \
+			"rollout setUpModUi \"modifier setup\" width:210 (\n"+\
+			--"group \" modifier selection: \" (\n"+\
+			"dropdownlist ddl_mod \"\" items:#(\"new attribute holder\")\n"+\
+			"editText mod_name \"\" text:\"---------- ctrlmaker ----------\" offset:[-2,0]\n"+\
+			"imgTag img_sep1 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center offset:[-1,0]\n"+\
+			"button ceate_btn \"create custom attributes >\" width:180 offset:[-2,0]\n"
+
 		-- starts the rollout definition...
-		rollStart = "rollout setUpUi \"custom attributes setup\" width:210\n(\n"
-		
-		-- describes the first group...
-		rollGrp = \
+		roll2Start = \
+			"rollout setUpRollUi \"rollout setup\" width:210 (\n"+\
 			"group \" rollout name: \" (\n"+\
-			"editText roll_name \"\" text:\"my rollout\" height:16 align:#center offset:[-2,0])\n"+\
-			"button ceate_btn \"create custom attributes >\" width:200 height:30 offset:[-2,0]\n"
+			"editText roll_name \"\" text:\"my rollout\" height:16 align:#center offset:[-2,0]\n)\n"
 
 		-- generate a random color for the tags...
 		tagColor = random (color 0 0 0) (color 255 255 255)
 
-		setPropGrp = ""; setUpS = ""; i = 1
+		roll2PropGrp = ""; setUpS = ""; i = 1
 
 		-- filters the template list builds the strings to setup the custom attributes...	
 		for listItem in listArray do (
@@ -109,15 +114,15 @@ struct ctrlmkrCaSetUp_source (
 			if listItem == label1 or listItem == label2 or listItem == label3 do (
 				
 				setUpS += \
-					"append ca_colorArray tag_color" + iS + ".color\n"+\
-					"append ca_nameArray sld_name" + iS + ".text\n"+\
-					"append ca_minArray ui_spn_min" + iS + ".value\n"+\
-					"append ca_maxArray ui_spn_max" + iS + ".value\n"+\
-					"append ca_intArray chk_" + iS + ".state\n"
+					"append ca_colorArray roll.tag_color" + iS + ".color\n"+\
+					"append ca_nameArray roll.sld_name" + iS + ".text\n"+\
+					"append ca_minArray roll.ui_spn_min" + iS + ".value\n"+\
+					"append ca_maxArray roll.ui_spn_max" + iS + ".value\n"+\
+					"append ca_intArray roll.chk_" + iS + ".state\n"
 
-				if listItem == label1 do setPropGrp += caSlider_source.setUpUiPrp iS tagColorS
-				if listItem == label2 do setPropGrp += caSpinner_source.setUpUiPrp iS tagColorS
-				if listItem == label3 do setPropGrp += caSliderWithSpinner_source.setUpUiPrp iS tagColorS
+				if listItem == label1 do roll2PropGrp += caSlider_source.setUpUiPrp iS tagColorS
+				if listItem == label2 do roll2PropGrp += caSpinner_source.setUpUiPrp iS tagColorS
+				if listItem == label3 do roll2PropGrp += caSliderWithSpinner_source.setUpUiPrp iS tagColorS
 
 				tagColor = tagColor * 0.5
 				)
@@ -125,31 +130,31 @@ struct ctrlmkrCaSetUp_source (
 			if listItem == label4 do (
 
 				setUpS += \
-					"append ca4_propArray rdo_trm" + iS + ".state\n"+\
-					"append ca4_minArray ui_spnX_min" + iS + ".value\n"+\
-					"append ca4_maxArray ui_spnX_max" + iS + ".value\n"+\
-					"append ca4_minArray ui_spnY_min" + iS + ".value\n"+\
-					"append ca4_maxArray ui_spnY_max" + iS + ".value\n"+\
-					"append ca4_minArray ui_spnZ_min" + iS + ".value\n"+\
-					"append ca4_maxArray ui_spnZ_max" + iS + ".value\n"
+					"append ca4_propArray roll.rdo_trm" + iS + ".state\n"+\
+					"append ca4_minArray roll.ui_spnX_min" + iS + ".value\n"+\
+					"append ca4_maxArray roll.ui_spnX_max" + iS + ".value\n"+\
+					"append ca4_minArray roll.ui_spnY_min" + iS + ".value\n"+\
+					"append ca4_maxArray roll.ui_spnY_max" + iS + ".value\n"+\
+					"append ca4_minArray roll.ui_spnZ_min" + iS + ".value\n"+\
+					"append ca4_maxArray roll.ui_spnZ_max" + iS + ".value\n"
 
-				setPropGrp += caTransformSpinners_source.setUpUiPrp iS
+				roll2PropGrp += caTransformSpinners_source.setUpUiPrp iS
 				)
 
 			i+=1
 			)
 
-		eventGrp = \
+		roll1EventGrp = \
 			"on ddl_mod rightClick do (\n"+\
 			"modArray = #()\n"+\
 			"if selection.count == 1 do (\n"+\
 			"for m in $.modifiers do append modArray m.name\n"+\
-			"insertItem \"new attribute holder\" modArray 1)\nddl_mod.items = modArray)\n"+\
+			"insertItem \"new attribute holder\" modArray 1)\nddl_mod.items = modArray\n)\n"+\
 			"on ddl_mod selected mod do (\n"+\
 			"if ddl_mod.selection == 1 then (mod_name.enabled = true; mod_name.visible = true)\n"+\
-			"else (mod_name.enabled = false; mod_name.visible = false))\n"+\
+			"else (mod_name.enabled = false; mod_name.visible = false)\n)\n"+\
 			-- creates all custom attributes...
-			"on ceate_btn pressed do (\n"+\
+			"on ceate_btn pressed do (\nroll = setUpFloater.rollouts[2]\n"+\
 			"if selection.count == 1 then (\ni = 1\n"+\
 			"if ddl_mod.selection == 1 do ctrlmkrCaSetUp_source.addHolder $ mod_name.text\n"+\
 			-- a bunch of empty arrays...
@@ -161,23 +166,23 @@ struct ctrlmkrCaSetUp_source (
 			"ca4_setUpArray = #(ca4_minArray, ca4_maxArray, ca4_propArray)\n"+\
 			-- creates all the custom attributes...
 			"if ddl_mod.selection == 1 then ("+\
-			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll_name.text 1 ca_setUpArray ca4_setUpArray)\n"+\
-			"else (ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll_name.text (ddl_mod.selection - 1) "+\
+			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text 1 ca_setUpArray ca4_setUpArray)\n"+\
+			"else (ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text (ddl_mod.selection - 1) "+\
 			"ca_setUpArray ca4_setUpArray)\n)\nelse messageBox \"(づ｡◕‿‿◕｡)づ     select one object!\" "+\
-			"title:\"ERROR: 49563879-1 CATASTROFIC FAILURE\" \n"
+			"title:\"ERROR: 49563879-1 CATASTROFIC FAILURE\"\n)\n)"
 
 		-- builds the strings to setup the custom attributes...
-		infoGrp = \
-			"group \" modifier selection: \" (\n"+\
-			"dropdownlist ddl_mod \"\" items:#(\"new attribute holder\")\n"+\
-			"editText mod_name \"\" text:\"---------- ctrlmaker ----------\" height:16 align:#center)\n"+\
+		roll2End = \
 			"group \" info: \" (\n"+\
-			"label lab_credit1 \"set everything and click the big button\" align:#center)\n"
+			"label lab_credit1 \"set everything and click the big button\" align:#center)\n)\n"
 
-		rollEnd = "))createDialog setUpUi"
+		--rollEnd = "))createDialog setUpUi"
+		rollFloater = \
+			"setUpFloater = newRolloutFloater \"custom attributes setup\" 220 460\n"+\
+			"addRollout setUpModUi setUpFloater\naddRollout setUpRollUi setUpFloater\n"
 
 		-- concatenates all the strings...
-		setUpUiS = rollStart + rollGrp + setPropGrp + infoGrp + eventGrp + rollEnd
+		setUpUiS = roll1Start + roll1EventGrp + roll2Start + roll2PropGrp + roll2End + rollFloater
 
 		execute setUpUiS
 		)
