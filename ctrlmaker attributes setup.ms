@@ -7,8 +7,16 @@ include "transform spinners ctrlmaker_attributes.ms"
 
 struct ctrlmkrCaSetUp_source (
 
+	-- checks the attribute holder modifier...
+	fn addHolder obj holderName = (
+		
+		holder = EmptyModifier name:holderName
+
+		addModifier obj holder
+		),
+
 	-- filters the template list and builds the custom attribute definition...
-	fn ca_build listArray rollName ca_setUpArray ca4_setUpArray = (
+	fn ca_build listArray rollName modIndex ca_setUpArray ca4_setUpArray = (
 
 		-- starts the custom attribute definition...
 		caStart = "ca = Attributes '" + rollName + "' (\nparameters '" + rollName + "' rollout:'" + rollName + "Ui' (\n"
@@ -65,7 +73,7 @@ struct ctrlmkrCaSetUp_source (
 			)
 
 		-- ends the custom attribute definition and adds to the selected object first modifier...
-		caEnd = ")\n)\ncustAttributes.add $.modifiers[1] ca\nfree ca"
+		caEnd = ")\n)\ncustAttributes.add $.modifiers[" + modIndex as string + "] ca\nfree ca"
 		caS = caStart + caParams + caRollStart + caUi + caEnd
 
 		execute caS
@@ -78,8 +86,6 @@ struct ctrlmkrCaSetUp_source (
 		
 		-- describes the first group...
 		rollGrp = \
-			"group \" modifier selection: \" (\n"+\
-			"dropdownlist ddl_mod \"\" items:#() enabled:false)"+\
 			"group \" rollout name: \" (\n"+\
 			"editText roll_name \"\" text:\"my rollout\" height:16 align:#center offset:[-2,0])\n"+\
 			"button ceate_btn \"create custom attributes >\" width:200 height:30 offset:[-2,0]\n"
@@ -133,14 +139,19 @@ struct ctrlmkrCaSetUp_source (
 			i+=1
 			)
 
-		-- creates all custom attributes...
 		eventGrp = \
 			"on ddl_mod rightClick do (\n"+\
 			"modArray = #()\n"+\
 			"if selection.count == 1 do (\n"+\
 			"for m in $.modifiers do append modArray m.name\n"+\
 			"insertItem \"new attribute holder\" modArray 1)\nddl_mod.items = modArray)\n"+\
-			"on ceate_btn pressed do (\ni = 1\n"+\
+			"on ddl_mod selected mod do (\n"+\
+			"if ddl_mod.selection == 1 then (mod_name.enabled = true; mod_name.visible = true)\n"+\
+			"else (mod_name.enabled = false; mod_name.visible = false))\n"+\
+			-- creates all custom attributes...
+			"on ceate_btn pressed do (\n"+\
+			"if selection.count == 1 then (\ni = 1\n"+\
+			"if ddl_mod.selection == 1 do ctrlmkrCaSetUp_source.addHolder $ mod_name.text\n"+\
 			-- a bunch of empty arrays...
 			"ca_colorArray = #(); ca_nameArray = # (); ca_minArray = #(); ca_maxArray = #(); ca_intArray = #()\n"+\
 			"ca4_minArray = #(); ca4_maxArray = #(); ca4_propArray = #()\n"+\
@@ -149,11 +160,17 @@ struct ctrlmkrCaSetUp_source (
 			"ca_setUpArray = #(ca_colorArray, ca_nameArray, ca_minArray, ca_maxArray, ca_intArray)\n"+\
 			"ca4_setUpArray = #(ca4_minArray, ca4_maxArray, ca4_propArray)\n"+\
 			-- creates all the custom attributes...
-			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll_name.text "+\
-			"ca_setUpArray ca4_setUpArray\n"
+			"if ddl_mod.selection == 1 then ("+\
+			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll_name.text 1 ca_setUpArray ca4_setUpArray)\n"+\
+			"else (ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll_name.text (ddl_mod.selection - 1) "+\
+			"ca_setUpArray ca4_setUpArray)\n)\nelse messageBox \"(づ｡◕‿‿◕｡)づ     select one object!\" "+\
+			"title:\"ERROR: 49563879-1 CATASTROFIC FAILURE\" \n"
 
 		-- builds the strings to setup the custom attributes...
 		infoGrp = \
+			"group \" modifier selection: \" (\n"+\
+			"dropdownlist ddl_mod \"\" items:#(\"new attribute holder\")\n"+\
+			"editText mod_name \"\" text:\"---------- ctrlmaker ----------\" height:16 align:#center)\n"+\
 			"group \" info: \" (\n"+\
 			"label lab_credit1 \"set everything and click the big button\" align:#center)\n"
 
