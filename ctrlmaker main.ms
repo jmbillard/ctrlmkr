@@ -1,11 +1,13 @@
 
 -- try to closes any instance of the main ui rollout...
-try (destroyDialog ctrlmakerMainUi) catch()
+try (closeRolloutFloater ctrlmkrMain_source.ctrlmkrFloater) catch()
 
 -- includes the custom attributes setup code ...
 include "ctrlmaker attributes setup.ms"
 
 struct ctrlmkrMain_source (
+
+	ctrlmkrFloater,
 
 	-- sets all the attribute template labels...
 	fn setTemplateLabels = (
@@ -70,16 +72,20 @@ struct ctrlmkrMain_source (
 
 		return #(listArray, returnIndex)
 		),
+
 -------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------
 	-- creates the main ui rollout...
 	fn mainUi_build = (
 
+		ctrlmkrMain_source.ctrlmkrFloater = newRolloutFloater "ctrlmkr..." 220 487
+
 		rollout templateListUi "template list setup" width:210 (
 
 			group " custom attribute template: " (
 
-				dropdownlist ddl_attributes "" width:130 items:(ctrlmkrMain_source.setTemplateLabels()) across:2
+				dropdownlist ddl_attributes "" width:130 \
+				items:(ctrlmkrMain_source.setTemplateLabels()) across:2
 				button btn_add "add" width:50 align:#right
 				)
 
@@ -93,9 +99,11 @@ struct ctrlmkrMain_source (
 				button btn_del "delete" width:60 align:#right --
 				label lab_grad " color tag gradient:" align:#left
 				imgTag img_sep2 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center
-				colorpicker tag_color1 "" color:(random (color 0 0 0) (color 255 255 255)) width:65 height:18 align:#left across:3 offset:[-3,0]
+				colorpicker tag_color1 "" color:(random (color 0 0 0) (color 255 255 255)) \
+				width:65 height:18 align:#left across:3 offset:[-3,0]
 				label lab_color "<>" align:#center
-				colorpicker tag_color2 "" color:(random (color 0 0 0) (color 255 255 255)) width:65 height:18 align:#right
+				colorpicker tag_color2 "" color:(random (color 0 0 0) (color 255 255 255)) \
+				width:65 height:18 align:#right
 				)
 
 			button btn_set "custom attributes setup" width:200 height:48 align:#center
@@ -163,16 +171,19 @@ struct ctrlmkrMain_source (
 			on btn_set pressed do (
 
 				listArray = list_caTemplates.items
+				wPos = ctrlmkrMain_source.ctrlmkrFloater.pos
 
 				if listArray.count != 0 then (
+
 				
 					color1 = tag_color1.color
 					color2 = tag_color2.color
 
-					ctrlmkrCaSetUp_source.setUpUi_build listArray color1 color2
+					ctrlmkrCaSetUp_source.setUpUi_build wPos listArray color1 color2
 					)
 
-				else messageBox "(づ｡◕‿‿◕｡)づ     add some templates!" title:"ERROR: 4434814-7  ||  EVERYTHING IS CRASHING BY"
+				else messageBox "(づ｡◕‿‿◕｡)づ     add some templates!" \
+				title:"ERROR: 4434814-7  ||  EVERYTHING IS CRASHING BY"
 				)
 			)
 
@@ -181,14 +192,13 @@ struct ctrlmkrMain_source (
 			group " abaut: " (
 
 				label lab_credit1 "ctrlmaker v3" align:#left across:2
-				hyperLink link_credit "pointlesspineapple.com" address:"https://www.pointlesspineapple.com/" align:#right
+				hyperLink link_credit "pointlesspineapple.com" \
+				address:"https://www.pointlesspineapple.com/" align:#right
 				)
 			)
 
-		ctrlmkrFloater = newRolloutFloater "ctrlmkr..." 220 487
-
-		addRollout templateListUi ctrlmkrFloater
-		addRollout infoUi ctrlmkrFloater rolledUp:true
+		addRollout templateListUi ctrlmkrMain_source.ctrlmkrFloater
+		addRollout infoUi ctrlmkrMain_source.ctrlmkrFloater rolledUp:true
 		)
 	)
 

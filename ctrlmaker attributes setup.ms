@@ -7,6 +7,8 @@ include "transform spinners ctrlmaker_attributes.ms"
 
 struct ctrlmkrCaSetUp_source (
 
+	setUpFloater,
+
 	-- checks the attribute holder modifier...
 	fn addHolder obj holderName = (
 
@@ -62,13 +64,13 @@ struct ctrlmkrCaSetUp_source (
 				ca4_minArray = #((ca4_setUpArray[1])[j],(ca4_setUpArray[1])[j+1],(ca4_setUpArray[1])[j+2])
 				ca4_maxArray = #((ca4_setUpArray[2])[j],(ca4_setUpArray[2])[j+1],(ca4_setUpArray[2])[j+2])
 				ca4_prop = (ca4_setUpArray[3])[ca4]
-				ca4S = ca4 as string; j+=3
+				ca4S = ca4 as string
 
 				setUpItem4 = caTransformSpinners_source.caParamUi ca4S rollName ca4_minArray ca4_maxArray ca4_prop
 
 				caParams += setUpItem4[1]
 				caUi += setUpItem4[2]
-				ca4 += 1
+				ca4 += 1; j+=3
 				)
 			)
 
@@ -79,10 +81,10 @@ struct ctrlmkrCaSetUp_source (
 		execute caS
 		),
 
-	fn setUpUi_build listArray tagColor1 tagColor2 = (
+	fn setUpUi_build windowPos listArray tagColor1 tagColor2 = (
 
-		setUpFloater = newRolloutFloater "custom attributes setup..." 220 600
-		setUpFloater.pos = ctrlmkrFloater.pos + [250, 0]
+		ctrlmkrCaSetUp_source.setUpFloater = newRolloutFloater "custom attributes setup..." 220 600
+		ctrlmkrCaSetUp_source.setUpFloater.pos = windowPos + [250, 0]
 
 		roll1Start = \
 			"rollout setUpModUi \"modifier setup\" width:210 (\n"+\
@@ -157,7 +159,7 @@ struct ctrlmkrCaSetUp_source (
 			"if ddl_mod.selection == 1 then (mod_name.enabled = true; mod_name.visible = true)\n"+\
 			"else (mod_name.enabled = false; mod_name.visible = false)\n)\n"+\
 			-- creates all custom attributes...
-			"on ceate_btn pressed do (\nroll = setUpFloater.rollouts[2]\n"+\
+			"on ceate_btn pressed do (\nroll = ctrlmkrCaSetUp_source.setUpFloater.rollouts[2]\n"+\
 			"if selection.count == 1 then (\ni = 1\n"+\
 			"if ddl_mod.selection == 1 do ctrlmkrCaSetUp_source.addHolder $ mod_name.text\n"+\
 			-- a bunch of empty arrays...
@@ -171,7 +173,8 @@ struct ctrlmkrCaSetUp_source (
 			"if ddl_mod.selection == 1 then ("+\
 			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text 1 ca_setUpArray ca4_setUpArray)\n"+\
 			"else (ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text (ddl_mod.selection - 1) "+\
-			"ca_setUpArray ca4_setUpArray)\ncloseRolloutFloater setUpFloater)\nelse messageBox \"(づ｡◕‿‿◕｡)づ     select one object!\" "+\
+			"ca_setUpArray ca4_setUpArray)\ncloseRolloutFloater ctrlmkrCaSetUp_source.setUpFloater)\n"+\
+			"else messageBox \"(づ｡◕‿‿◕｡)づ     select one object!\" "+\
 			"title:\"ERROR: 49563879-1  ||  CATASTROFIC FAILURE\"\n)\n)"
 
 		roll2End = \
@@ -179,16 +182,13 @@ struct ctrlmkrCaSetUp_source (
 			"label lab_credit1 \"set everything and click the big button\" align:#center)\n)\n"
 
 		-- concatenates all the strings...	
-		rollout1 = roll1Start + roll1EventGrp
-		rollout2 = roll2Start + roll2PropGrp + roll2End
-
-		execute rollout1
-		execute rollout2
+		rollout1 = execute (roll1Start + roll1EventGrp)
+		rollout2 = execute (roll2Start + roll2PropGrp + roll2End)
 
 		if floaterHight < 600 do setUpFloater.size = [220, floaterHight]
 		
-		addRollout setUpModUi setUpFloater
-		addRollout setUpRollUi setUpFloater
+		addRollout rollout1 setUpFloater
+		addRollout rollout2 setUpFloater
 		)
 	)
 
