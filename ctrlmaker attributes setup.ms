@@ -7,7 +7,7 @@ include "transform spinners ctrlmaker_attributes.ms"
 
 struct ctrlmkrCaSetUp_source (
 
-	setUpFloater,
+	setUpFloater = undefined,
 
 	-- checks the attribute holder modifier...
 	fn addHolder obj holderName = (
@@ -16,6 +16,20 @@ struct ctrlmkrCaSetUp_source (
 
 		addModifier obj holder
 		),
+
+	fn getCaDefinition obj modIndex = (
+
+	caCount = custAttributes.count obj.modifiers[modIndex]
+	caList = #("new definition")
+
+	for i in 1 to caCount do (
+
+		caDefS = (custAttributes.getDef obj.modifiers[modIndex] i) as string
+		append caList caDefS
+		)
+
+	return caList
+	),
 
 	-- filters the template list and builds the custom attribute definition...
 	fn ca_build listArray rollName modIndex ca_setUpArray ca4_setUpArray = (
@@ -85,13 +99,20 @@ struct ctrlmkrCaSetUp_source (
 
 		ctrlmkrCaSetUp_source.setUpFloater = newRolloutFloater "custom attributes setup..." 220 600
 		ctrlmkrCaSetUp_source.setUpFloater.pos = windowPos + [250, 0]
+		modArray = "#(\"new attribute holder\", \"selected modifier\")"
 
 		roll1Start = \
 			"rollout setUpModUi \"modifier setup\" width:210 (\n"+\
-			"dropdownlist ddl_mod \"\" items:#(\"new attribute holder\")\n"+\
+			"dropdownlist ddl_mod \"\" items:" + modArray + "\n"+\
 			"editText mod_name \"\" text:\"---------- ctrlmaker ----------\" offset:[-2,0]\n"+\
+			"listbox list_def \"\" items:#() height:3 offset:[0,-20] enabled:false visible:false\n"+\
 			"imgTag img_sep1 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center offset:[-1,0]\n"+\
-			"button ceate_btn \"create custom attributes >\" width:180 offset:[-2,0]\n"
+			"button ceate_btn \"create custom attributes >\" width:180 offset:[-2,0]\n\n"+\
+			"fn updateDefList = (\nlist_def.items = #()\n"+\
+			"if (selection as array).count == 1 and $.modifiers[1] != undefined do (\n"+\
+			"modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())\n"+\
+			"defList = ctrlmkrCaSetUp_source.getCaDefinition $ modIndex\n"+\
+			"list_def.items = defList)\n)\n"
 
 		-- starts the rollout definition...
 		roll2Start = \
@@ -102,7 +123,7 @@ struct ctrlmkrCaSetUp_source (
 		-- generate a random color for the tags...
 		colorStep = (tagColor2 - tagColor1) / (listArray.count - 1)
 
-		roll2PropGrp = ""; setUpS = ""; i = 1; floaterHight = 231
+		roll2PropGrp = ""; setUpS = ""; i = 1; floaterHight = 262
 
 		-- filters the template list builds the strings to setup the custom attributes...	
 		for listItem in listArray do (
@@ -150,18 +171,18 @@ struct ctrlmkrCaSetUp_source (
 			)
 
 		roll1EventGrp = \
-			"on ddl_mod rightClick do (\n"+\
-			"modArray = #()\n"+\
-			"if selection.count == 1 do (\n"+\
-			"for m in $.modifiers do append modArray m.name\n"+\
-			"insertItem \"new attribute holder\" modArray 1)\nddl_mod.items = modArray\n)\n"+\
 			"on ddl_mod selected mod do (\n"+\
-			"if ddl_mod.selection == 1 then (mod_name.enabled = true; mod_name.visible = true)\n"+\
-			"else (mod_name.enabled = false; mod_name.visible = false)\n)\n"+\
+			"if ddl_mod.selection == 1 then (\nmod_name.enabled = true; mod_name.visible = true\n"+\
+			"list_def.enabled = false; list_def.visible = false\n)\n"+\
+			"else (mod_name.enabled = false; mod_name.visible = false; "+\
+			"list_def.enabled = true; list_def.visible = true\nupdateDefList()\n)\n)\n"+\
+			-- updates the defList...
+			"on list_def rightClick do updateDefList()\n"+\
 			-- creates all custom attributes...
 			"on ceate_btn pressed do (\nroll = ctrlmkrCaSetUp_source.setUpFloater.rollouts[2]\n"+\
-			"if selection.count == 1 then (\ni = 1\n"+\
-			"if ddl_mod.selection == 1 do ctrlmkrCaSetUp_source.addHolder $ mod_name.text\n"+\
+			"if (selection as array).count == 1 then (\ni = 1; modIndex = 1\n"+\
+			"if ddl_mod.selection == 1 or $.modifiers[1] == undefined do "+\
+			"ctrlmkrCaSetUp_source.addHolder $ mod_name.text\n"+\
 			-- a bunch of empty arrays...
 			"ca_colorArray = #(); ca_nameArray = # (); ca_minArray = #(); ca_maxArray = #(); ca_intArray = #()\n"+\
 			"ca4_minArray = #(); ca4_maxArray = #(); ca4_propArray = #()\n"+\
@@ -170,10 +191,10 @@ struct ctrlmkrCaSetUp_source (
 			"ca_setUpArray = #(ca_colorArray, ca_nameArray, ca_minArray, ca_maxArray, ca_intArray)\n"+\
 			"ca4_setUpArray = #(ca4_minArray, ca4_maxArray, ca4_propArray)\n"+\
 			-- creates all the custom attributes...
-			"if ddl_mod.selection == 1 then ("+\
-			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text 1 ca_setUpArray ca4_setUpArray)\n"+\
-			"else (ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text (ddl_mod.selection - 1) "+\
-			"ca_setUpArray ca4_setUpArray)\ncloseRolloutFloater ctrlmkrCaSetUp_source.setUpFloater)\n"+\
+			"if ddl_mod.selection == 2 do "+\
+			"modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())\n"+\
+			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text modIndex "+\
+			"ca_setUpArray ca4_setUpArray\ncloseRolloutFloater ctrlmkrCaSetUp_source.setUpFloater)\n"+\
 			"else messageBox \"(づ｡◕‿‿◕｡)づ     select one object!\" "+\
 			"title:\"ERROR: 49563879-1  ||  CATASTROFIC FAILURE\"\n)\n)"
 
@@ -185,7 +206,7 @@ struct ctrlmkrCaSetUp_source (
 		rollout1 = execute (roll1Start + roll1EventGrp)
 		rollout2 = execute (roll2Start + roll2PropGrp + roll2End)
 
-		if floaterHight < 600 do setUpFloater.size = [220, floaterHight]
+		if floaterHight < 650 do setUpFloater.size = [220, floaterHight]
 		
 		addRollout rollout1 setUpFloater
 		addRollout rollout2 setUpFloater

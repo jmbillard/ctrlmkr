@@ -7,7 +7,7 @@ include "ctrlmaker attributes setup.ms"
 
 struct ctrlmkrMain_source (
 
-	ctrlmkrFloater,
+	ctrlmkrFloater = undefined,
 
 	-- sets all the attribute template labels...
 	fn setTemplateLabels = (

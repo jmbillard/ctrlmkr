@@ -10,7 +10,7 @@ struct caTransformSpinners_source (
 		range2 = "[-99999999999,99999999999,9999]"
 		setPropGrp = \
 			"group \" transform spinners xyz: \" (\n"+\
-			"radiobuttons rdo_trm" + iS + " \"\" labels:#(\"pos\",\"rot\",\"scale\") align:#left columns:1 offset:[0,0]\n" +\
+			"radioButtons rdo_trm" + iS + " \"\" labels:#(\"pos\",\"rot\",\"scale\") align:#left columns:1 offset:[0,0]\n" +\
 			"imgTag img_" + iS + "X bitmap:(bitmap 2 12 color:red) align:#center offset:[-34,-49]\n"+\
 			"spinner ui_spnX_min" + iS + " \"\"  width:60 range:" + range1 + " type:#float align:#center offset:[0,-19]\n"+\
 			"spinner ui_spnX_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n"+\
