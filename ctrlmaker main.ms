@@ -7,6 +7,13 @@ include "ctrlmaker attributes setup.ms"
 
 struct ctrlmkrMain_source (
 
+	fn randomColor = (
+		
+		rcolor = random (color 0 0 0) (color 255 255 255)
+
+		return rcolor
+		),
+
 	-- sets all the attribute template labels...
 	fn setTemplateLabels = (
 
@@ -75,26 +82,30 @@ struct ctrlmkrMain_source (
 	-- creates the main ui rollout...
 	fn mainUi_build = (
 
-		rollout ctrlmakerMainUi "ctrlmaker" width:210 (
+		rollout templateListUi "template list setup" width:210 (
+
 			group " custom attribute template: " (
+
 				dropdownlist ddl_attributes "" width:130 items:(ctrlmkrMain_source.setTemplateLabels()) across:2
 				button btn_add "add" width:50 align:#right
 				)
 
 			group " rollout components: " (
+
 				listbox list_caTemplates "" items:#() height:15
 				label lab_num " edit rollout components:" align:#left
 				imgTag img_sep1 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center
-				button btn_up "up" width:60 align:#left
-				button btn_down "down" width:60 align:#left
-				button btn_del "delete selected" width:120 height:48 align:#right offset:[0,-52]
+				button btn_up "up" width:60 align:#left across:3
+				button btn_down "down" width:60 align:#center
+				button btn_del "delete" width:60 align:#right --
+				label lab_grad " color tag gradient:" align:#left
+				imgTag img_sep2 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center
+				colorpicker tag_color1 "" color:(random (color 0 0 0) (color 255 255 255)) width:65 height:18 align:#left across:3 offset:[-3,0]
+				label lab_color "<>" align:#center
+				colorpicker tag_color2 "" color:(random (color 0 0 0) (color 255 255 255)) width:65 height:18 align:#right
 				)
 
 			button btn_set "custom attributes setup" width:200 height:48 align:#center
-			group " abaut: " (
-				label lab_credit1 "ctrlmaker v3" across:2 align:#left
-				hyperLink link_credit "pointlesspineapple.com" address:"https://www.pointlesspineapple.com/" align:#right
-				)
 
 			-- adds the selected template to the components list...
 			on btn_add pressed do (
@@ -156,7 +167,19 @@ struct ctrlmkrMain_source (
 				)
 			)
 
-		createDialog ctrlmakerMainUi
+		rollout infoUi "info" width:210 (
+
+			group " abaut: " (
+
+				label lab_credit1 "ctrlmaker v3" across:2 align:#left
+				hyperLink link_credit "pointlesspineapple.com" address:"https://www.pointlesspineapple.com/" align:#right
+				)
+			)
+
+		ctrlmkrFloater = newRolloutFloater "ctrlmkr" 220 540
+
+		addRollout templateListUi ctrlmkrFloater
+		addRollout infoUi ctrlmkrFloater
 		)
 	)
 

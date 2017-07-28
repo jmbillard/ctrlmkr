@@ -81,9 +81,10 @@ struct ctrlmkrCaSetUp_source (
 
 	fn setUpUi_build listArray = (
 		
+		setUpFloater = newRolloutFloater "custom attributes setup" 220 460
+
 		roll1Start = \
 			"rollout setUpModUi \"modifier setup\" width:210 (\n"+\
-			--"group \" modifier selection: \" (\n"+\
 			"dropdownlist ddl_mod \"\" items:#(\"new attribute holder\")\n"+\
 			"editText mod_name \"\" text:\"---------- ctrlmaker ----------\" offset:[-2,0]\n"+\
 			"imgTag img_sep1 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center offset:[-1,0]\n"+\
@@ -176,15 +177,15 @@ struct ctrlmkrCaSetUp_source (
 			"group \" info: \" (\n"+\
 			"label lab_credit1 \"set everything and click the big button\" align:#center)\n)\n"
 
-		--rollEnd = "))createDialog setUpUi"
-		rollFloater = \
-			"setUpFloater = newRolloutFloater \"custom attributes setup\" 220 460\n"+\
-			"addRollout setUpModUi setUpFloater\naddRollout setUpRollUi setUpFloater\n"
+		-- concatenates all the strings...	
+		rollout1 = roll1Start + roll1EventGrp
+		rollout2 = roll2Start + roll2PropGrp + roll2End
 
-		-- concatenates all the strings...
-		setUpUiS = roll1Start + roll1EventGrp + roll2Start + roll2PropGrp + roll2End + rollFloater
-
-		execute setUpUiS
+		execute rollout1
+		execute rollout2
+		
+		addRollout setUpModUi setUpFloater
+		addRollout setUpRollUi setUpFloater
 		)
 	)
 
