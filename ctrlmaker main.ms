@@ -7,13 +7,6 @@ include "ctrlmaker attributes setup.ms"
 
 struct ctrlmkrMain_source (
 
-	fn randomColor = (
-		
-		rcolor = random (color 0 0 0) (color 255 255 255)
-
-		return rcolor
-		),
-
 	-- sets all the attribute template labels...
 	fn setTemplateLabels = (
 
@@ -123,7 +116,10 @@ struct ctrlmkrMain_source (
 			on btn_up pressed do (
 				if list_caTemplates.items.count >= 2 do (
 
-					newListSetup = ctrlmkrMain_source.moveListItems list_caTemplates.items list_caTemplates.selection 1
+					listArray = list_caTemplates.items
+					index = list_caTemplates.selection
+
+					newListSetup = ctrlmkrMain_source.moveListItems listArray index 1
 					
 					list_caTemplates.items = newListSetup[1]
 					list_caTemplates.selection = newListSetup[2]
@@ -135,7 +131,10 @@ struct ctrlmkrMain_source (
 
 				if list_caTemplates.items.count >= 2 do (
 
-					newListSetup = ctrlmkrMain_source.moveListItems list_caTemplates.items list_caTemplates.selection -1
+					listArray = list_caTemplates.items
+					index = list_caTemplates.selection
+
+					newListSetup = ctrlmkrMain_source.moveListItems listArray index -1
 					
 					list_caTemplates.items = newListSetup[1]
 					list_caTemplates.selection = newListSetup[2]
@@ -163,7 +162,17 @@ struct ctrlmkrMain_source (
 			-- creates the setup ui for every template in the components list...
 			on btn_set pressed do (
 
-				ctrlmkrCaSetUp_source.setUpUi_build list_caTemplates.items
+				listArray = list_caTemplates.items
+
+				if listArray.count != 0 then (
+				
+					color1 = tag_color1.color
+					color2 = tag_color2.color
+
+					ctrlmkrCaSetUp_source.setUpUi_build listArray color1 color2
+					)
+
+				else messageBox "(づ｡◕‿‿◕｡)づ     add some templates!" title:"ERROR: 4434814-7  ||  EVERYTHING IS CRASHING BY"
 				)
 			)
 
@@ -171,15 +180,15 @@ struct ctrlmkrMain_source (
 
 			group " abaut: " (
 
-				label lab_credit1 "ctrlmaker v3" across:2 align:#left
+				label lab_credit1 "ctrlmaker v3" align:#left across:2
 				hyperLink link_credit "pointlesspineapple.com" address:"https://www.pointlesspineapple.com/" align:#right
 				)
 			)
 
-		ctrlmkrFloater = newRolloutFloater "ctrlmkr" 220 540
+		ctrlmkrFloater = newRolloutFloater "ctrlmkr..." 220 487
 
 		addRollout templateListUi ctrlmkrFloater
-		addRollout infoUi ctrlmkrFloater
+		addRollout infoUi ctrlmkrFloater rolledUp:true
 		)
 	)
 

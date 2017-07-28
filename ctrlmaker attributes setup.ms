@@ -9,7 +9,7 @@ struct ctrlmkrCaSetUp_source (
 
 	-- checks the attribute holder modifier...
 	fn addHolder obj holderName = (
-		
+
 		holder = EmptyModifier name:holderName
 
 		addModifier obj holder
@@ -37,7 +37,7 @@ struct ctrlmkrCaSetUp_source (
 
 			-- "slider", "spinners", "slider with spinner" templates...
 			if listItem == label1 or listItem == label2 or listItem == label3 do (
-				
+
 				ca_color = (ca_setUpArray[1])[ca]
 				ca_name = (ca_setUpArray[2])[ca]
 				ca_min = (ca_setUpArray[3])[ca]
@@ -50,7 +50,7 @@ struct ctrlmkrCaSetUp_source (
 				if listItem == label3 do setUpCaUi = caSliderWithSpinner_source.caParamUi 
 
 				setUpItem = setUpCaUi caS rollName ca_color ca_name ca_min ca_max ca_int
-					
+
 				caParams += setUpItem[1]
 				caUi += setUpItem[2]
 				ca += 1
@@ -65,7 +65,7 @@ struct ctrlmkrCaSetUp_source (
 				ca4S = ca4 as string; j+=3
 
 				setUpItem4 = caTransformSpinners_source.caParamUi ca4S rollName ca4_minArray ca4_maxArray ca4_prop
-				
+
 				caParams += setUpItem4[1]
 				caUi += setUpItem4[2]
 				ca4 += 1
@@ -79,9 +79,10 @@ struct ctrlmkrCaSetUp_source (
 		execute caS
 		),
 
-	fn setUpUi_build listArray = (
-		
-		setUpFloater = newRolloutFloater "custom attributes setup" 220 460
+	fn setUpUi_build listArray tagColor1 tagColor2 = (
+
+		setUpFloater = newRolloutFloater "custom attributes setup..." 220 600
+		setUpFloater.pos = ctrlmkrFloater.pos + [250, 0]
 
 		roll1Start = \
 			"rollout setUpModUi \"modifier setup\" width:210 (\n"+\
@@ -97,15 +98,16 @@ struct ctrlmkrCaSetUp_source (
 			"editText roll_name \"\" text:\"my rollout\" height:16 align:#center offset:[-2,0]\n)\n"
 
 		-- generate a random color for the tags...
-		tagColor = random (color 0 0 0) (color 255 255 255)
+		colorStep = (tagColor2 - tagColor1) / (listArray.count - 1)
 
-		roll2PropGrp = ""; setUpS = ""; i = 1
+		roll2PropGrp = ""; setUpS = ""; i = 1; floaterHight = 231
 
 		-- filters the template list builds the strings to setup the custom attributes...	
 		for listItem in listArray do (
 
 			iS = i as string
-			tagColorS = tagColor as string
+			tagColorS = tagColor1 as string
+
 			label1 = caSlider_source.attributeLabel
 			label2 = caSpinner_source.attributeLabel
 			label3 = caSliderWithSpinner_source.attributeLabel
@@ -113,7 +115,9 @@ struct ctrlmkrCaSetUp_source (
 
 			-- builds the strings to setup the custom attributes...	
 			if listItem == label1 or listItem == label2 or listItem == label3 do (
-				
+
+				floaterHight += 67
+				tagColor1 += colorStep
 				setUpS += \
 					"append ca_colorArray roll.tag_color" + iS + ".color\n"+\
 					"append ca_nameArray roll.sld_name" + iS + ".text\n"+\
@@ -124,12 +128,12 @@ struct ctrlmkrCaSetUp_source (
 				if listItem == label1 do roll2PropGrp += caSlider_source.setUpUiPrp iS tagColorS
 				if listItem == label2 do roll2PropGrp += caSpinner_source.setUpUiPrp iS tagColorS
 				if listItem == label3 do roll2PropGrp += caSliderWithSpinner_source.setUpUiPrp iS tagColorS
-
-				tagColor = tagColor * 0.5
 				)
 
 			if listItem == label4 do (
 
+				floaterHight += 79
+				roll2PropGrp += caTransformSpinners_source.setUpUiPrp iS
 				setUpS += \
 					"append ca4_propArray roll.rdo_trm" + iS + ".state\n"+\
 					"append ca4_minArray roll.ui_spnX_min" + iS + ".value\n"+\
@@ -138,8 +142,6 @@ struct ctrlmkrCaSetUp_source (
 					"append ca4_maxArray roll.ui_spnY_max" + iS + ".value\n"+\
 					"append ca4_minArray roll.ui_spnZ_min" + iS + ".value\n"+\
 					"append ca4_maxArray roll.ui_spnZ_max" + iS + ".value\n"
-
-				roll2PropGrp += caTransformSpinners_source.setUpUiPrp iS
 				)
 
 			i+=1
@@ -169,10 +171,9 @@ struct ctrlmkrCaSetUp_source (
 			"if ddl_mod.selection == 1 then ("+\
 			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text 1 ca_setUpArray ca4_setUpArray)\n"+\
 			"else (ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text (ddl_mod.selection - 1) "+\
-			"ca_setUpArray ca4_setUpArray)\n)\nelse messageBox \"(づ｡◕‿‿◕｡)づ     select one object!\" "+\
-			"title:\"ERROR: 49563879-1 CATASTROFIC FAILURE\"\n)\n)"
+			"ca_setUpArray ca4_setUpArray)\ncloseRolloutFloater setUpFloater)\nelse messageBox \"(づ｡◕‿‿◕｡)づ     select one object!\" "+\
+			"title:\"ERROR: 49563879-1  ||  CATASTROFIC FAILURE\"\n)\n)"
 
-		-- builds the strings to setup the custom attributes...
 		roll2End = \
 			"group \" info: \" (\n"+\
 			"label lab_credit1 \"set everything and click the big button\" align:#center)\n)\n"
@@ -183,6 +184,8 @@ struct ctrlmkrCaSetUp_source (
 
 		execute rollout1
 		execute rollout2
+
+		if floaterHight < 600 do setUpFloater.size = [220, floaterHight]
 		
 		addRollout setUpModUi setUpFloater
 		addRollout setUpRollUi setUpFloater
