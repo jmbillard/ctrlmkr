@@ -8,7 +8,7 @@ include "ctrlmaker attributes setup.ms"
 
 struct ctrlmkrMain_source (
 
-	ctrlmkrFloater = undefined,
+	ctrlmkrFloater = undefined, copyDef = undefined,
 
 	-- sets all the attribute template labels...
 	fn setTemplateLabels = (
@@ -107,9 +107,9 @@ struct ctrlmkrMain_source (
 			group " rollout components: " (
 
 				listbox list_caTemplates "" items:#() height:10
-				button btn_up "up" width:60 align:#left across:3
-				button btn_down "down" width:60 align:#center
-				button btn_del "delete" width:60 align:#right --
+				button btn_up "▲" width:60 align:#left across:3
+				button btn_down "▼" width:60 align:#center
+				button btn_del "delete" width:60 align:#right
 				imgTag img_sep2 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center
 				colorpicker tag_color1 "" color:(random (color 0 0 0) (color 255 255 255)) \
 				width:65 height:18 align:#left across:3 offset:[-3, 0]
@@ -214,12 +214,10 @@ struct ctrlmkrMain_source (
 			group " definitions: " (
 
 				listbox list_def "" items:#() height:4
-				--button btn_copy "copy" width:60 align:#left across:3
-				--button btn_paste "paste" width:60 align:#center
-				--button btn_print "print" width:60 align:#right --
+				button btn_copy "copy" width:60 align:#left across:3
+				button btn_paste "paste" width:60 align:#center
+				button btn_del "delete" width:60 align:#right
 				)
-
-			button btn_del "delete attribute definition" width:200 align:#center
 
 			fn refreshDefList = (
 
@@ -234,17 +232,6 @@ struct ctrlmkrMain_source (
 				list_def.items = defList
 				)
 
-			fn deleteDef = (
-
-				if (selection as array).count == 1 and $.modifiers[1] != undefined do (
-
-					modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())
-					custAttributes.delete $.modifiers[modIndex] list_def.selection
-					)
-
-				refreshDefList()
-				)
-
 			on list_def rightClick do (
 
 				refreshDefList()
@@ -252,7 +239,43 @@ struct ctrlmkrMain_source (
 
 			on btn_del pressed do (
 
-				deleteDef()
+				if (selection as array).count == 1 and $.modifiers[1] != undefined do (
+
+					mod = modPanel.getCurrentObject()
+					modIndex = modPanel.getModifierIndex $ mod
+					custAttributes.delete $.modifiers[modIndex] list_def.selection
+					)
+
+				refreshDefList()
+				)
+
+			on btn_copy pressed do (
+
+				if (selection as array).count == 1 and $.modifiers[1] != undefined do (
+
+					mod = modPanel.getCurrentObject()
+					modIndex = modPanel.getModifierIndex $ mod
+					def = (custAttributes.getDef $.modifiers[modIndex] list_def.selection)
+					ctrlmkrMain_source.copyDef = def
+					)
+				)
+			
+			on btn_paste pressed do (
+
+				for obj in selection as array do (
+
+					if ctrlmkrMain_source.copyDef != undefined do (
+
+						nameS = "---------- ctrlmaker ----------"
+
+						if obj.modifiers[1] != undefined do ctrlmkrCaSetUp_source.addHolder obj nameS
+
+						mod = modPanel.getCurrentObject()
+						modIndex = modPanel.getModifierIndex obj mod
+					
+						custAttributes.add obj.modifiers[modIndex] ctrlmkrMain_source.copyDef
+						)
+					)
 				)
 			)
 
