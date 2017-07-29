@@ -124,7 +124,7 @@ struct ctrlmkrCaSetUp_source (
 		label4 = caTransformSpinners_source.attributeLabel
 
 		-- generate a random color for the tags...
-		i = 1; for l in listArray do if l == label1 or l == label2 or l == label3 do i += 1
+		i = 0; for l in listArray do if l == label1 or l == label2 or l == label3 do i += 1
 
 		colorStep = (tagColor2 - tagColor1) / (i - 1)
 		roll2PropGrp = ""; setUpS = ""; floaterHight = 262
