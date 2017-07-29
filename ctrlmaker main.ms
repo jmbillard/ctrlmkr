@@ -1,6 +1,7 @@
 
--- try to closes any instance of the main ui rollout...
+-- try to closes any instance of the rollout floaters...
 try (closeRolloutFloater ctrlmkrMain_source.ctrlmkrFloater) catch()
+try (closeRolloutFloater ctrlmkrCaSetUp_source.setUpFloater) catch()
 
 -- includes the custom attributes setup code ...
 include "ctrlmaker attributes setup.ms"
@@ -73,12 +74,26 @@ struct ctrlmkrMain_source (
 		return #(listArray, returnIndex)
 		),
 
+	fn getCaName obj modIndex caList = (
+
+		caCount = custAttributes.count obj.modifiers[modIndex]
+
+		for i in 1 to caCount do (
+
+			caDef = (custAttributes.getDef obj.modifiers[modIndex] i)
+			caName = ((custAttributes.getPBlockDefs caDef)[1])[1] as string
+			append caList caName
+			)
+
+		return caList
+		),
+
 -------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------
 	-- creates the main ui rollout...
 	fn mainUi_build = (
 
-		ctrlmkrMain_source.ctrlmkrFloater = newRolloutFloater "ctrlmkr..." 220 487
+		ctrlmkrMain_source.ctrlmkrFloater = newRolloutFloater "ctrlmkr..." 220 541
 
 		rollout templateListUi "template list setup" width:210 (
 
@@ -91,7 +106,7 @@ struct ctrlmkrMain_source (
 
 			group " rollout components: " (
 
-				listbox list_caTemplates "" items:#() height:15
+				listbox list_caTemplates "" items:#() height:10
 				label lab_num " edit rollout components:" align:#left
 				imgTag img_sep1 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center
 				button btn_up "up" width:60 align:#left across:3
@@ -106,7 +121,7 @@ struct ctrlmkrMain_source (
 				width:65 height:18 align:#right
 				)
 
-			button btn_set "custom attributes setup" width:200 height:48 align:#center
+			button btn_set "custom attributes setup" width:200 align:#center
 
 			-- adds the selected template to the components list...
 			on btn_add pressed do (
@@ -197,7 +212,51 @@ struct ctrlmkrMain_source (
 				)
 			)
 
+		rollout removeCaUi "remove custom attributes" width:210 (
+
+			group " definitions: " (
+
+				listbox list_def "" items:#() height:4
+				)
+			button btn_del "delete attribute definition" width:200 align:#center
+
+			fn refreshDefList = (
+
+				defList = #()
+
+				if (selection as array).count == 1 and $.modifiers[1] != undefined do (
+
+					modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())
+					defList = ctrlmkrMain_source.getCaName $ modIndex defList
+					)
+
+				list_def.items = defList
+				)
+
+			fn deleteDef = (
+
+				if (selection as array).count == 1 and $.modifiers[1] != undefined do (
+
+					modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())
+					custAttributes.delete $.modifiers[modIndex] list_def.selection
+					)
+
+				refreshDefList()
+				)
+
+			on list_def rightClick do (
+
+				refreshDefList()
+				)
+
+			on btn_del pressed do (
+
+				deleteDef()
+				)
+			)
+
 		addRollout templateListUi ctrlmkrMain_source.ctrlmkrFloater
+		addRollout removeCaUi ctrlmkrMain_source.ctrlmkrFloater
 		addRollout infoUi ctrlmkrMain_source.ctrlmkrFloater rolledUp:true
 		)
 	)

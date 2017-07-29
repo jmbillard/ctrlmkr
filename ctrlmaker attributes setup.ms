@@ -17,25 +17,20 @@ struct ctrlmkrCaSetUp_source (
 		addModifier obj holder
 		),
 
-	fn getCaDefinition obj modIndex = (
-
-	caCount = custAttributes.count obj.modifiers[modIndex]
-	caList = #("new definition")
-
-	for i in 1 to caCount do (
-
-		caDefS = (custAttributes.getDef obj.modifiers[modIndex] i) as string
-		append caList caDefS
-		)
-
-	return caList
-	),
-
 	-- filters the template list and builds the custom attribute definition...
-	fn ca_build listArray rollName modIndex ca_setUpArray ca4_setUpArray = (
+	fn ca_build listArray rollName modIndex defIndex ca_setUpArray ca4_setUpArray = (
+ 
+		
+		redef = ""
+		
+		if defIndex > 1 do redef = \
+			"\nredefine:(custAttributes.getDef "+\
+			"$.modifiers[" + modIndex as string + "] " + (defIndex - 1) as string + ")"
 
 		-- starts the custom attribute definition...
-		caStart = "ca = Attributes '" + rollName + "' (\nparameters '" + rollName + "' rollout:'" + rollName + "Ui' (\n"
+		caStart =\
+			"ca = Attributes '" + rollName + "' " + redef + " (\n"+\
+			"parameters '" + rollName + "' rollout:'" + rollName + "Ui' (\n"
 
 		-- starts the rollout definition...
 		caRollStart = ")\nrollout '" + rollName + "Ui' \"" + rollName + "\" (\n"
@@ -111,7 +106,7 @@ struct ctrlmkrCaSetUp_source (
 			"fn updateDefList = (\nlist_def.items = #()\n"+\
 			"if (selection as array).count == 1 and $.modifiers[1] != undefined do (\n"+\
 			"modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())\n"+\
-			"defList = ctrlmkrCaSetUp_source.getCaDefinition $ modIndex\n"+\
+			"defList = ctrlmkrMain_source.getCaName $ modIndex #(\"new definition\")\n"+\
 			"list_def.items = defList)\n)\n"
 
 		-- starts the rollout definition...
@@ -179,7 +174,7 @@ struct ctrlmkrCaSetUp_source (
 			-- updates the defList...
 			"on list_def rightClick do updateDefList()\n"+\
 			-- creates all custom attributes...
-			"on ceate_btn pressed do (\nroll = ctrlmkrCaSetUp_source.setUpFloater.rollouts[2]\n"+\
+			"on ceate_btn pressed do (\nroll = ctrlmkrCaSetUp_source.setUpFloater.rollouts[2]; defIndex = 1\n"+\
 			"if (selection as array).count == 1 then (\ni = 1; modIndex = 1\n"+\
 			"if ddl_mod.selection == 1 or $.modifiers[1] == undefined do "+\
 			"ctrlmkrCaSetUp_source.addHolder $ mod_name.text\n"+\
@@ -191,9 +186,9 @@ struct ctrlmkrCaSetUp_source (
 			"ca_setUpArray = #(ca_colorArray, ca_nameArray, ca_minArray, ca_maxArray, ca_intArray)\n"+\
 			"ca4_setUpArray = #(ca4_minArray, ca4_maxArray, ca4_propArray)\n"+\
 			-- creates all the custom attributes...
-			"if ddl_mod.selection == 2 do "+\
-			"modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())\n"+\
-			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text modIndex "+\
+			"if ddl_mod.selection == 2 do (\n"+\
+			"modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())\ndefIndex = list_def.selection\n)\n"+\
+			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text modIndex defIndex "+\
 			"ca_setUpArray ca4_setUpArray\ncloseRolloutFloater ctrlmkrCaSetUp_source.setUpFloater)\n"+\
 			"else messageBox \"(づ｡◕‿‿◕｡)づ     select one object!\" "+\
 			"title:\"ERROR: 49563879-1  ||  CATASTROFIC FAILURE\"\n)\n)"
