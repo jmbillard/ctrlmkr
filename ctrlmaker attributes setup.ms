@@ -36,15 +36,17 @@ struct ctrlmkrCaSetUp_source (
 		caRollStart = ")\nrollout '" + rollName + "Ui' \"" + rollName + "\" (\n"
 
 		-- creates the custom attribute variables for parameters, ui and counters...
-		caParams = ""; caUi = ""; j = 1; ca= 1; ca4 = 1
+		caParams = ""; caUi = "" 
+
+		label1 = caSlider_source.attributeLabel
+		label2 = caSpinner_source.attributeLabel
+		label3 = caSliderWithSpinner_source.attributeLabel
+		label4 = caTransformSpinners_source.attributeLabel
 
 		-- filters the template list to append the custom attribute parameters and ui...
-		for listItem in listArray do (
+		ca = 1; j = 1; ca4 = 1; for listItem in listArray do (
 
-			label1 = caSlider_source.attributeLabel
-			label2 = caSpinner_source.attributeLabel
-			label3 = caSliderWithSpinner_source.attributeLabel
-			setUpCaUi = undefined
+			setUpCaUi = ""
 
 			-- "slider", "spinners", "slider with spinner" templates...
 			if listItem == label1 or listItem == label2 or listItem == label3 do (
@@ -68,7 +70,7 @@ struct ctrlmkrCaSetUp_source (
 				)
 
 			-- "transform spinners xyz" template..
-			if listItem == caTransformSpinners_source.attributeLabel do (
+			if listItem == label4 do (
 
 				ca4_minArray = #((ca4_setUpArray[1])[j],(ca4_setUpArray[1])[j+1],(ca4_setUpArray[1])[j+2])
 				ca4_maxArray = #((ca4_setUpArray[2])[j],(ca4_setUpArray[2])[j+1],(ca4_setUpArray[2])[j+2])
@@ -103,6 +105,7 @@ struct ctrlmkrCaSetUp_source (
 			"listbox list_def \"\" items:#() height:3 offset:[0,-20] enabled:false visible:false\n"+\
 			"imgTag img_sep1 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center offset:[-1,0]\n"+\
 			"button ceate_btn \"create custom attributes >\" width:180 offset:[-2,0]\n\n"+\
+			-----------------------------------------------------------------------------------------------------
 			"fn updateDefList = (\nlist_def.items = #()\n"+\
 			"if (selection as array).count == 1 and $.modifiers[1] != undefined do (\n"+\
 			"modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())\n"+\
@@ -115,21 +118,23 @@ struct ctrlmkrCaSetUp_source (
 			"group \" rollout name: \" (\n"+\
 			"editText roll_name \"\" text:\"my rollout\" height:16 align:#center offset:[-2,0]\n)\n"
 
-		-- generate a random color for the tags...
-		colorStep = (tagColor2 - tagColor1) / (listArray.count - 1)
+		label1 = caSlider_source.attributeLabel
+		label2 = caSpinner_source.attributeLabel
+		label3 = caSliderWithSpinner_source.attributeLabel
+		label4 = caTransformSpinners_source.attributeLabel
 
-		roll2PropGrp = ""; setUpS = ""; i = 1; floaterHight = 262
+		-- generate a random color for the tags...
+		i = 1; for l in listArray do if l == label1 or l == label2 or l == label3 do i += 1
+
+		colorStep = (tagColor2 - tagColor1) / (i - 1)
+		roll2PropGrp = ""; setUpS = ""; floaterHight = 262
 
 		-- filters the template list builds the strings to setup the custom attributes...	
-		for listItem in listArray do (
+		i = 1; for listItem in listArray do (
 
 			iS = i as string
 			tagColorS = tagColor1 as string
 
-			label1 = caSlider_source.attributeLabel
-			label2 = caSpinner_source.attributeLabel
-			label3 = caSliderWithSpinner_source.attributeLabel
-			label4 = caTransformSpinners_source.attributeLabel
 
 			-- builds the strings to setup the custom attributes...	
 			if listItem == label1 or listItem == label2 or listItem == label3 do (
@@ -162,34 +167,48 @@ struct ctrlmkrCaSetUp_source (
 					"append ca4_maxArray roll.ui_spnZ_max" + iS + ".value\n"
 				)
 
-			i+=1
+			i += 1
 			)
+
+		-- all the empty empty arrays...
+		emptyArrayS = \
+			"ca_colorArray = #(); ca_nameArray = # (); ca_minArray = #(); ca_maxArray = #(); ca_intArray = #()\n"+\
+			"ca4_minArray = #(); ca4_maxArray = #(); ca4_propArray = #()\n"
+
+		setupArrayS = \
+			"ca_setUpArray = #(ca_colorArray, ca_nameArray, ca_minArray, ca_maxArray, ca_intArray)\n"+\
+			"ca4_setUpArray = #(ca4_minArray, ca4_maxArray, ca4_propArray)\n"
 
 		roll1EventGrp = \
 			"on ddl_mod selected mod do (\n"+\
-			"if ddl_mod.selection == 1 then (\nmod_name.enabled = true; mod_name.visible = true\n"+\
+			"if ddl_mod.selection == 1 then (\n"+\
+			"mod_name.enabled = true; mod_name.visible = true\n"+\
 			"list_def.enabled = false; list_def.visible = false\n)\n"+\
+			-----------------------------------------------------------------------------------------------------
 			"else (mod_name.enabled = false; mod_name.visible = false; "+\
 			"list_def.enabled = true; list_def.visible = true\nupdateDefList()\n)\n)\n"+\
 			-- updates the defList...
 			"on list_def rightClick do updateDefList()\n"+\
 			-- creates all custom attributes...
-			"on ceate_btn pressed do (\nroll = ctrlmkrCaSetUp_source.setUpFloater.rollouts[2]; defIndex = 1\n"+\
+			"on ceate_btn pressed do (\n"+\
+			"roll = ctrlmkrCaSetUp_source.setUpFloater.rollouts[2]; defIndex = 1\n"+\
+			-----------------------------------------------------------------------------------------------------
 			"if (selection as array).count == 1 then (\ni = 1; modIndex = 1\n"+\
+			-----------------------------------------------------------------------------------------------------
 			"if ddl_mod.selection == 1 or $.modifiers[1] == undefined do "+\
 			"ctrlmkrCaSetUp_source.addHolder $ mod_name.text\n"+\
-			-- a bunch of empty arrays...
-			"ca_colorArray = #(); ca_nameArray = # (); ca_minArray = #(); ca_maxArray = #(); ca_intArray = #()\n"+\
-			"ca4_minArray = #(); ca4_maxArray = #(); ca4_propArray = #()\n"+\
-			-- creates all the setup arrays...
-			setUpS +\
-			"ca_setUpArray = #(ca_colorArray, ca_nameArray, ca_minArray, ca_maxArray, ca_intArray)\n"+\
-			"ca4_setUpArray = #(ca4_minArray, ca4_maxArray, ca4_propArray)\n"+\
-			-- creates all the custom attributes...
+			-- crates and populates all the setup arrays...
+			emptyArrayS + setUpS + setupArrayS +\
+			-----------------------------------------------------------------------------------------------------
 			"if ddl_mod.selection == 2 do (\n"+\
-			"modIndex = modPanel.getModifierIndex $ (modPanel.getCurrentObject())\ndefIndex = list_def.selection\n)\n"+\
-			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text modIndex defIndex "+\
-			"ca_setUpArray ca4_setUpArray\ncloseRolloutFloater ctrlmkrCaSetUp_source.setUpFloater)\n"+\
+			"mod = modPanel.getCurrentObject()\n"+\
+			"modIndex = modPanel.getModifierIndex $ mod\n"+\
+			"defIndex = list_def.selection\n)\n"+\
+			-----------------------------------------------------------------------------------------------------
+			"ctrlmkrCaSetUp_source.ca_build " + listArray as string + " roll.roll_name.text "+\
+			"modIndex defIndex ca_setUpArray ca4_setUpArray\n"+\
+			"closeRolloutFloater ctrlmkrCaSetUp_source.setUpFloater)\n"+\
+			-----------------------------------------------------------------------------------------------------
 			"else messageBox \"(づ｡◕‿‿◕｡)づ     select one object!\" "+\
 			"title:\"ERROR: 49563879-1  ||  CATASTROFIC FAILURE\"\n)\n)"
 

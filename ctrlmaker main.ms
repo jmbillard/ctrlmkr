@@ -93,30 +93,27 @@ struct ctrlmkrMain_source (
 	-- creates the main ui rollout...
 	fn mainUi_build = (
 
-		ctrlmkrMain_source.ctrlmkrFloater = newRolloutFloater "ctrlmkr..." 220 541
+		ctrlmkrMain_source.ctrlmkrFloater = newRolloutFloater "ctrlmkr..." 220 499
 
 		rollout templateListUi "template list setup" width:210 (
 
 			group " custom attribute template: " (
 
-				dropdownlist ddl_attributes "" width:130 \
+				dropdownlist ddl_attributes "" width:150 \
 				items:(ctrlmkrMain_source.setTemplateLabels()) across:2
-				button btn_add "add" width:50 align:#right
+				button btn_add "+" width:30 align:#right
 				)
 
 			group " rollout components: " (
 
 				listbox list_caTemplates "" items:#() height:10
-				label lab_num " edit rollout components:" align:#left
-				imgTag img_sep1 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center
 				button btn_up "up" width:60 align:#left across:3
 				button btn_down "down" width:60 align:#center
 				button btn_del "delete" width:60 align:#right --
-				label lab_grad " color tag gradient:" align:#left
 				imgTag img_sep2 bitmap:(bitmap 180 1 color:(color 10 10 10)) align:#center
 				colorpicker tag_color1 "" color:(random (color 0 0 0) (color 255 255 255)) \
-				width:65 height:18 align:#left across:3 offset:[-3,0]
-				label lab_color "<>" align:#center
+				width:65 height:18 align:#left across:3 offset:[-3, 0]
+				label lab_color "<>" align:#center offset:[0, 2]
 				colorpicker tag_color2 "" color:(random (color 0 0 0) (color 255 255 255)) \
 				width:65 height:18 align:#right
 				)
@@ -212,12 +209,16 @@ struct ctrlmkrMain_source (
 				)
 			)
 
-		rollout removeCaUi "remove custom attributes" width:210 (
+		rollout editCaUi "manege custom attributes" width:210 (
 
 			group " definitions: " (
 
 				listbox list_def "" items:#() height:4
+				--button btn_copy "copy" width:60 align:#left across:3
+				--button btn_paste "paste" width:60 align:#center
+				--button btn_print "print" width:60 align:#right --
 				)
+
 			button btn_del "delete attribute definition" width:200 align:#center
 
 			fn refreshDefList = (
@@ -256,7 +257,7 @@ struct ctrlmkrMain_source (
 			)
 
 		addRollout templateListUi ctrlmkrMain_source.ctrlmkrFloater
-		addRollout removeCaUi ctrlmkrMain_source.ctrlmkrFloater
+		addRollout editCaUi ctrlmkrMain_source.ctrlmkrFloater
 		addRollout infoUi ctrlmkrMain_source.ctrlmkrFloater rolledUp:true
 		)
 	)

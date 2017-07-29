@@ -6,17 +6,20 @@ struct caTransformSpinners_source (
 	-- contains the strings to setup the custom attributes...
 	fn setUpUiPrp iS = (
 
-		range1 = "[-99999999999,99999999999,-9999]"
-		range2 = "[-99999999999,99999999999,9999]"
+		range1 = "[-99999999999, 99999999999, -9999]"
+		range2 = "[-99999999999, 99999999999, 9999]"
 		setPropGrp = \
 			"group \" transform spinners xyz: \" (\n"+\
 			"radioButtons rdo_trm" + iS + " \"\" labels:#(\"pos\",\"rot\",\"scale\") align:#left columns:1 offset:[0,0]\n" +\
+			-----------------------------------------------------------------------------------------------------
 			"imgTag img_" + iS + "X bitmap:(bitmap 2 12 color:red) align:#center offset:[-34,-49]\n"+\
 			"spinner ui_spnX_min" + iS + " \"\"  width:60 range:" + range1 + " type:#float align:#center offset:[0,-19]\n"+\
 			"spinner ui_spnX_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n"+\
+			-----------------------------------------------------------------------------------------------------
 			"imgTag img_" + iS + "Y bitmap:(bitmap 2 12 color:green) align:#center offset:[-34,-2]\n"+\
 			"spinner ui_spnY_min" + iS + " \"\"  width:60 range:" + range1 + " type:#float align:#center offset:[0,-19]\n"+\
 			"spinner ui_spnY_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n"+\
+			-----------------------------------------------------------------------------------------------------
 			"imgTag img_" + iS + "Z bitmap:(bitmap 2 12 color:blue) align:#center offset:[-34,-2]\n"+\
 			"spinner ui_spnZ_min" + iS + " \"\"  width:60 range:" + range1 + " type:#float align:#center offset:[0,-19]\n"+\
 			"spinner ui_spnZ_max" + iS + " \"\" width:60 range:" + range2 + " type:#float align:#right offset:[0,-21]\n)\n"
@@ -28,8 +31,8 @@ struct caTransformSpinners_source (
 	fn caParamUi uiIndex rollName minArray maxArray propIndex = (
 
 		iS = uiIndex as string
-		trm = #("position","rotation","scale"); tProp = trm[propIndex]
-		colorArray = #("red","green","blue"); axisArray = #("X","Y","Z")
+		trm = #("position", "rotation", "scale"); tProp = trm[propIndex]
+		colorArray = #("red", "green", "blue"); axisArray = #("X", "Y", "Z")
 		caParam = ""
 		caUi = "group \" " + tProp + ": \" (\n"
 
@@ -66,7 +69,9 @@ struct caTransformSpinners_source (
 					"trs_spn_ScaleY" + iS + ".enabled = false; trs_spn_ScaleZ" + iS + ".enabled = false	\n"+\
 					"trs_spn_ScaleY" + iS + ".value = trs_spn_ScaleX" + iS + ".value\n"+\
 					"trs_spn_ScaleZ" + iS + ".value = trs_spn_ScaleX" + iS + ".value\n)\n"+\
+					------------------------------------------------------------------------------------------------
 					"else (trs_spn_ScaleY" + iS + ".enabled = true; trs_spn_ScaleZ" + iS + ".enabled = true)\n)\n"+\
+					------------------------------------------------------------------------------------------------
 					"on trs_spn_ScaleX" + iS + " changed val do (\n"+\
 					"if trs_ckb_uniformScale" + iS + ".checked == true do (\n"+\
 					"trs_spn_ScaleY" + iS + ".value = trs_spn_ScaleX" + iS + ".value\n"+\
